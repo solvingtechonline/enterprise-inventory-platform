@@ -27,9 +27,9 @@ export function Navbar() {
     <header className="border-b border-border bg-surface">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4">
         <Link href="/" className="flex items-baseline gap-2">
-          <span className="font-display text-lg font-semibold text-primary">Lite Thinking</span>
+          <span className="font-display text-lg font-semibold text-primary">Prueba Técnica | </span>
           <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
-            libro mayor
+            Lite Thinking
           </span>
         </Link>
 
