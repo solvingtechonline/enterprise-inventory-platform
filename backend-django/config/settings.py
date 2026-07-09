@@ -159,3 +159,13 @@ CORS_ALLOWED_ORIGINS = config(
     default="http://localhost:3000",
     cast=Csv(),
 )
+
+# --------------------------------------------------------------------------
+# Integración con FastAPI: Django dispara la ingesta de embeddings del
+# agente de IA (POST /api/ia/embeddings) al crear/editar un Producto,
+# reenviando el token del Administrador que llegó a esta misma petición
+# (mismo criterio que ya usa FastAPI en sentido inverso para leer
+# Empresa/Productos vía la API de Django). Ver
+# apps.productos.services.fastapi_ia_client.
+# --------------------------------------------------------------------------
+FASTAPI_API_URL = config("FASTAPI_API_URL", default="http://localhost:8001/api")

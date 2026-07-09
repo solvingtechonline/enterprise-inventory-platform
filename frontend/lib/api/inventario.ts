@@ -57,7 +57,7 @@ export async function descargarReportePdf(
 
 export interface ReporteEnviarRespuesta {
   mensaje: string;
-  modo: "smtp" | "consola";
+  modo: "brevo" | "consola";
 }
 
 /** Genera el PDF de inventario de una empresa y lo envía por correo al destinatario indicado. */

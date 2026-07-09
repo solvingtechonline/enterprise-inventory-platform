@@ -50,11 +50,54 @@ PostgreSQL.*
   embedding vigente. Si el proveedor de IA falla, responde
   `502 Bad Gateway` con el detalle, sin afectar el resto del servicio
   (Inventario, PDF, correo siguen funcionando).
+- **Cliente `fastapi_ia_client`**
+  (`backend-django/apps/productos/services/fastapi_ia_client.py`):
+  dispara `POST /api/ia/embeddings` desde Django, reenviando el token
+  del Administrador de la petición actual (mismo emisor de
+  autenticación en ambos backends; ver
+  `backend-fastapi/app/services/django_client.py` para el sentido
+  inverso). Enganchado en `ProductoViewSet.perform_create` /
+  `perform_update` (`backend-django/apps/productos/views.py`).
+
+## Ingesta automática al crear/editar un Producto
+
+Desde Django, `ProductoViewSet` dispara la ingesta justo después de
+guardar el Producto (creación o edición), sin que el usuario tenga que
+llamar al endpoint de FastAPI a mano:
+
+1. El Administrador crea o edita un Producto vía `POST`/`PUT`/`PATCH
+   /api/productos/` en Django (ya autenticado con su JWT).
+2. Tras guardar el Producto en la base de datos, `ProductoViewSet`
+   llama a `fastapi_ia_client.ingestar_embedding_async_seguro(...)`,
+   reenviando `empresa.nit`, `producto.codigo` y el mismo token JWT de
+   la petición.
+3. Esa llamada golpea `POST /api/ia/embeddings` en FastAPI, que genera
+   y guarda el embedding vigente exactamente igual que si se hubiera
+   llamado manualmente.
+
+**Es "best-effort", a propósito:** si FastAPI no responde, está caído,
+o el proveedor de embeddings configurado falla (por ejemplo, sin
+`GEMINI_API_KEY`), el Producto en Django **igual queda guardado**; el
+cliente solo registra un `warning` en el log y no propaga el error.
+Guardar un Producto no debe depender de la disponibilidad del agente
+de IA — mismo criterio de "no tumbar el resto del servicio" que ya
+usa el propio endpoint de FastAPI ante un fallo del proveedor.
+
+El endpoint manual `POST /api/ia/embeddings` **se mantiene disponible**
+para dos casos que la ingesta automática no cubre:
+
+- Reingestar en bloque los productos que ya existían antes de esta
+  automatización.
+- Reintentar manualmente un producto puntual cuyo embedding no se
+  generó porque el agente de IA estaba caído en el momento del
+  guardado.
 
 ## Decisiones de alcance
 
-- La ingesta de embeddings es explícita: se dispara llamando al endpoint
-  con el código del producto, no automáticamente al crear/editar un
-  Producto en Django.
-- La respuesta HTTP no expone el vector completo; devuelve solo su
-  dimensión, como evidencia de que se generó correctamente.
+- La respuesta HTTP del endpoint no expone el vector completo; devuelve
+  solo su dimensión, como evidencia de que se generó correctamente.
+- La ingesta automática se dispara de forma síncrona (con un timeout
+  corto) dentro del mismo request-response de Django, no vía una cola
+  de eventos o un job en background; se consideró suficiente para el
+  volumen de este proyecto, y queda documentado como posible mejora
+  futura si el volumen de escrituras creciera.
