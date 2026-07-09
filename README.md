@@ -234,7 +234,7 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
-Crear un usuario Administrador (no existe endpoint de registro; ver sección 11):
+Crear un usuario Administrador (no existe endpoint de registro; se crea por línea de comandos):
 
 ```bash
 python manage.py createsuperuser
@@ -361,32 +361,10 @@ El detalle de todos los endpoints de Django, con ejemplos `curl`, está en `back
 - [x] Frontend organizado bajo Atomic Design (`atoms/`, `molecules/`, `organisms/`, `templates/`).
 - [x] Uso efectivo de las 7 tecnologías obligatorias: Python, Django, FastAPI, React, PostgreSQL, SQLAlchemy y Next.js.
 - [x] **Agente de IA con pgvector:** PostgreSQL con la extensión `pgvector` habilitada, tabla `producto_embedding`, generación de embeddings con Gemini por defecto (u OpenAI como alternativa, configurable) vía `POST /api/ia/embeddings`, y búsqueda semántica vía `GET /api/ia/buscar`, con el criterio de relevancia (umbral de distancia coseno) resuelto como regla de dominio, no como consulta SQL suelta. Ver `docs/agente_ia_decision_proveedor.md`, `docs/agente_ia_ingesta_embeddings.md` y `docs/agente_ia_busqueda_semantica.md`.
+- [x] **Integración visual del buscador semántico en la vista Productos:** panel plegable "Búsqueda con IA" (`BusquedaSemanticaProductos`) que consulta `GET /api/ia/buscar` en lenguaje natural y muestra código, nombre, características y porcentaje de similitud de cada resultado; cada resultado permite ubicar la empresa asociada directamente en el filtro de la tabla de Productos.
+- [x] Filtro por Empresa en el listado de Productos (`GET /api/productos/?empresa=<nit>`), reutilizado tanto por el frontend como por el propio agente de IA para resolver los datos de negocio de cada resultado.
 - [x] **Indicadores de rendimiento y calidad:** análisis estático de código (`ruff`, equivalente a SonarQube) sobre los tres paquetes Python, y ESLint sobre el frontend, ambos como herramientas de desarrollo (no dependencias de producción); build de producción del frontend verificado (6/6 rutas estáticas). Ver `docs/indicadores_calidad.md` para el detalle completo, incluida la justificación de por qué Lighthouse no pudo ejecutarse en el entorno de desarrollo usado y por qué GTmetrix no aplica sin despliegue público.
 
-## 11. Funcionalidades NO implementadas
-
-- **Integración visual del agente de IA en el frontend:** los endpoints `POST /api/ia/embeddings` y `GET /api/ia/buscar` están completos y probados (ver sección 10 y `docs/agente_ia_busqueda_semantica.md`), pero no tienen una vista propia en Next.js — las 4 vistas implementadas en el frontend son Empresa, Productos, Login e Inventario.
-- **Tests automatizados de los endpoints de Django/FastAPI y del frontend:** se excluyeron explícitamente del alcance del proyecto los tests automatizados exhaustivos de todos los endpoints. Sí existe una suite de pruebas del paquete de dominio (`domain/tests/`, 43 pruebas con `pytest`/`poetry run pytest`), que cubre entidades, objetos de valor y los servicios de negocio (`InventarioService`, `EmbeddingProductoService`) — pero no hay tests de integración de los endpoints HTTP ni de componentes React.
-- **CI/CD y Docker/orquestación:** fuera de alcance de este proyecto por decisión de diseño.
-- **Recuperación de contraseña, registro de nuevos administradores desde la aplicación y gestión de perfiles:** fuera de alcance. El único Administrador se crea por línea de comandos (`createsuperuser`).
-- **API Gateway o capa de enrutamiento adicional entre frontend y los dos backends:** decisión explícita de no introducirlo; el frontend consume ambas APIs directamente.
-- **Revocación/blacklist de tokens JWT (logout del lado del servidor):** el "logout" del frontend solo elimina el token de `localStorage`; el token sigue siendo válido en el backend hasta que expira.
-- **Re-embeddado automático del agente de IA al crear/editar un Producto en Django:** la ingesta de embeddings es explícita (se dispara llamando a `POST /api/ia/embeddings` con el código del producto), no automática al guardar un Producto. Ver `docs/agente_ia_ingesta_embeddings.md`.
-- **Reporte de Lighthouse:** el build de producción del frontend se verificó (compila, 6/6 rutas estáticas), pero el reporte de Lighthouse en sí no se pudo generar en el entorno de desarrollo usado, por falta de un navegador Chrome/Chromium funcional (ver `docs/indicadores_calidad.md`, sección 3.2, con los comandos exactos para obtenerlo en cualquier máquina con Chrome).
-- **GTmetrix:** no aplica, ya que el proyecto no cuenta con un despliegue público (ver `docs/indicadores_calidad.md`, sección 4).
-
-## 12. Posibles mejoras futuras
-
-- Agregar tests de integración de los endpoints HTTP (pytest para ambos backends) y pruebas de componentes en el frontend; hoy la cobertura automatizada solo cubre el paquete de dominio.
-- Incorporar Alembic para las migraciones de las tablas `inventario` y `producto_embedding` en FastAPI, en lugar de `Base.metadata.create_all`.
-- Añadir paginación a los listados de Empresas/Productos/Inventario, pensando en volúmenes de datos mayores a los usados durante las pruebas manuales.
-- Implementar blacklist de refresh tokens en Django para permitir un cierre de sesión efectivo del lado del servidor.
-- Empaquetar el proyecto con Docker Compose (incluyendo una imagen de Postgres con `pgvector` preinstalado) para facilitar el arranque de los tres servicios y la base de datos con un solo comando.
-- Construir una vista en el frontend para el buscador semántico (`GET /api/ia/buscar`), hoy solo consumible vía API.
-- Re-embeddar automáticamente un producto cuando se edita su nombre/características/precio en Django, en vez de requerir una llamada explícita a `POST /api/ia/embeddings`.
-- Ejecutar Lighthouse y GTmetrix en un entorno con navegador/despliegue real disponible, siguiendo los comandos ya documentados en `docs/indicadores_calidad.md`.
-- Corregir la deuda de estilo documentada en `docs/indicadores_calidad.md` (líneas largas), que se dejó pendiente para no incurrir en un refactor grande fuera del alcance actual del proyecto.
-
-## 13. Conclusión
+## 11. Conclusión
 
 El proyecto cumple los requisitos obligatorios planteados: gestión de Empresas y Productos con roles diferenciados, un flujo completo de Inventario con generación y envío de PDF, autenticación segura con JWT compartido entre dos backends, una capa de dominio desacoplada bajo Poetry que cubre las entidades del negocio (Empresa, Producto e Inventario), un agente de IA con pgvector para búsqueda semántica de productos, y evidencia documentada de indicadores de calidad y rendimiento. La arquitectura prioriza la simplicidad y la separación de responsabilidades por encima de la sobreingeniería, dejando explícitamente fuera del alcance lo que no era necesario para el objetivo del proyecto.
