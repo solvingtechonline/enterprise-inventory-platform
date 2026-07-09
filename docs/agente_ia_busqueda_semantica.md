@@ -61,10 +61,13 @@
 
 ## Decisiones de alcance
 
-- Sin integración visual en el frontend (Next.js): el agente de IA se
-  consume por ahora solo vía API REST.
-- Sin re-embeddado automático al editar un producto en Django (la
-  ingesta sigue siendo explícita — ver `docs/agente_ia_ingesta_embeddings.md`).
+- La integración visual del buscador en el frontend (`BusquedaSemanticaProductos`,
+  panel "Búsqueda con IA" en la vista Productos) y el re-embeddado
+  automático al crear/editar un producto en Django (ver
+  `docs/agente_ia_ingesta_embeddings.md`) ya están implementados; ambos
+  quedaron fuera del alcance en una primera versión de este documento y
+  se agregaron después sin requerir cambios en este endpoint
+  (`GET /api/ia/buscar` no se modificó).
 
 ## Prueba manual documentada
 
@@ -175,5 +178,8 @@ productos reales cargados):
       consulta SQL suelta (`EmbeddingProductoService.UMBRAL_DISTANCIA_RELEVANTE`).
 - [x] Prueba manual documentada (arriba).
 
-Cualquier integración visual del buscador en el frontend queda fuera
-del alcance actual del proyecto.
+La integración visual del buscador en el frontend
+(`BusquedaSemanticaProductos`) y el re-embeddado automático al
+crear/editar un producto en Django ya están implementados; ver
+`docs/agente_ia_ingesta_embeddings.md` y la sección "Decisiones de
+alcance" arriba.

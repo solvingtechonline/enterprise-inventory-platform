@@ -138,8 +138,8 @@ def enviar_reporte_por_correo(
 
     mensaje = (
         f"Correo enviado a {body.destinatario}."
-        if modo == "smtp"
-        else f"SMTP no configurado: el envío a {body.destinatario} se simuló en modo consola."
+        if modo == "brevo"
+        else f"BREVO_API_KEY no configurada: el envío a {body.destinatario} se simuló en modo consola."
     )
     return ReporteEnviarRead(mensaje=mensaje, modo=modo)
 

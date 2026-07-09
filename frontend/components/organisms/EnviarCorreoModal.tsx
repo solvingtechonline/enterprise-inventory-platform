@@ -14,7 +14,7 @@ const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 interface Props {
   empresaNombre: string;
   onClose: () => void;
-  onEnviar: (destinatario: string) => Promise<{ mensaje: string; modo: "smtp" | "consola" }>;
+  onEnviar: (destinatario: string) => Promise<{ mensaje: string; modo: "brevo" | "consola" }>;
 }
 
 export function EnviarCorreoModal({ empresaNombre, onClose, onEnviar }: Props) {
@@ -53,11 +53,12 @@ export function EnviarCorreoModal({ empresaNombre, onClose, onEnviar }: Props) {
     <Modal title="Enviar inventario por correo" onClose={onClose} widthClassName="max-w-sm">
       {confirmacion ? (
         <div className="space-y-4">
-          <Alert tono={confirmacion.modo === "smtp" ? "exito" : "info"}>{confirmacion.mensaje}</Alert>
+          <Alert tono={confirmacion.modo === "brevo" ? "exito" : "info"}>{confirmacion.mensaje}</Alert>
           {confirmacion.modo === "consola" && (
             <p className="text-xs text-ink-muted">
-              No hay un servidor SMTP configurado en este entorno, así que el envío se simuló y
-              quedó registrado en el log del servicio. El PDF sí se generó correctamente.
+              No hay una clave de Brevo (BREVO_API_KEY) configurada en este entorno, así que el
+              envío se simuló y quedó registrado en el log del servicio. El PDF sí se generó
+              correctamente.
             </p>
           )}
           <div className="flex justify-end">

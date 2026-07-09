@@ -34,9 +34,9 @@ El problema que resuelve es el de una pequeña organización que necesita centra
 
 ### Librerías principales
 - **ReportLab**: generación del PDF de inventario en el microservicio FastAPI.
-- **smtplib** (librería estándar de Python): envío del PDF por correo, sin introducir un framework de correo adicional.
+- **curl** (invocado vía `subprocess` desde `app.services.email_service`): envío del PDF por correo consumiendo directamente la API HTTP de Brevo (`https://api.brevo.com/v3/smtp/email`), sin SMTP. Se eligió así porque el plan gratuito de Render bloquea/falla en los puertos SMTP salientes (25/587/465), mientras que la API de Brevo viaja por HTTPS (443) como cualquier otra llamada REST del proyecto.
 - **python-jose**: validación (decodificación y verificación de firma) del JWT emitido por Django, del lado de FastAPI.
-- **httpx**: cliente HTTP usado por FastAPI para consultar la API de Django (Empresa/Productos) al construir el reporte y al enriquecer los resultados de búsqueda semántica.
+- **httpx**: cliente HTTP usado tanto por FastAPI (para consultar la API de Django al construir el reporte y al enriquecer los resultados de búsqueda semántica) como por Django (para disparar automáticamente `POST /api/ia/embeddings` en FastAPI al crear/editar un Producto).
 
 ### Herramientas
 - **Poetry**: gestiona las dependencias del paquete de dominio (`domain/`), que se instala como dependencia editable (`-e ../domain`) tanto en Django como en FastAPI.
@@ -98,6 +98,8 @@ Puntos clave:
 
 - **Django** es la única fuente de autenticación: emite el JWT con el claim `rol`. **FastAPI no tiene tabla de usuarios ni flujo de login propio**; solo valida la firma del mismo token (misma clave y algoritmo compartidos por variables de entorno).
 - Cuando FastAPI necesita construir el PDF de inventario, no lee las tablas de Django directamente: **reenvía el token del usuario y consulta la API REST de Django** para obtener los datos de Empresa y Productos. Esto evita mezclar la persistencia de los dos ORMs. El agente de IA sigue el mismo criterio: resuelve nombre/características/empresa de cada resultado consultando la API de Django, en vez de duplicar esos datos en la tabla de embeddings.
+- La comunicación entre backends va **en ambos sentidos**: además de que FastAPI reenvía el token para leer Empresa/Productos de Django, **Django reenvía el mismo token en sentido contrario** hacia FastAPI (`apps.productos.services.fastapi_ia_client`) para disparar automáticamente la ingesta de embeddings al crear/editar un Producto, sin que el usuario tenga que llamarla a mano.
+- El envío del PDF de inventario por correo consume directamente la API HTTP de Brevo con `curl` (`app.services.email_service`), no SMTP: el plan gratuito de Render bloquea/falla en los puertos SMTP salientes, mientras que la API de Brevo viaja por HTTPS igual que cualquier otra llamada REST del proyecto.
 - El **dominio** (`domain/`) es un paquete Python instalable de forma aislada (sin Django, FastAPI ni HTTP). Cubre las entidades del negocio de forma general, no solo Inventario:
   - `Inventario` + VO `Cantidad` (no negativa): registrar de nuevo un producto ya existente en el inventario de una empresa **suma** a la cantidad existente en vez de duplicar el registro.
   - `Empresa` + VO `Nit` (formato validado: solo dígitos, con dígito de verificación opcional).
@@ -126,6 +128,8 @@ lite-thinking-2026/
 │       ├── autenticacion/      # Usuario (correo+password), login JWT, permisos por rol
 │       ├── empresas/           # CRUD Empresa (lectura pública, escritura Administrador)
 │       └── productos/          # CRUD Producto con precios multi-moneda (solo Administrador)
+│           └── services/        # fastapi_ia_client: dispara la ingesta automática de
+│                                 # embeddings en FastAPI tras crear/editar un Producto
 │
 ├── backend-fastapi/            # Inventario, PDF, envío de correo, Agente de IA
 │   └── app/
@@ -136,7 +140,7 @@ lite-thinking-2026/
 │       ├── models/              # InventarioModel, ProductoEmbeddingModel (SQLAlchemy + pgvector)
 │       ├── repositories/        # Adaptadores SQLAlchemy de los puertos de dominio
 │       ├── schemas/              # Contratos Pydantic de la API (incluye schemas/ia.py)
-│       └── services/             # Cliente hacia Django, PDF, correo, proveedores de embeddings (Gemini/OpenAI)
+│       └── services/             # Cliente hacia Django, PDF, correo (API de Brevo vía curl), proveedores de embeddings (Gemini/OpenAI)
 │
 ├── frontend/                   # Next.js + React, Atomic Design
 │   ├── app/                     # Rutas: /, /login, /empresas, /productos, /inventario
@@ -294,6 +298,7 @@ Disponible en `http://localhost:3000`.
 | `JWT_ACCESS_TOKEN_LIFETIME_HOURS` | Duración del access token. |
 | `JWT_REFRESH_TOKEN_LIFETIME_DAYS` | Duración del refresh token. |
 | `CORS_ALLOWED_ORIGINS` | Orígenes permitidos (el frontend Next.js). |
+| `FASTAPI_API_URL` | URL base de la API de FastAPI, usada para disparar automáticamente `POST /api/ia/embeddings` al crear/editar un Producto (ver `apps.productos.services.fastapi_ia_client`). |
 
 ### `backend-fastapi/.env`
 
@@ -303,9 +308,8 @@ Disponible en `http://localhost:3000`.
 | `POSTGRES_*` | Misma base de datos que Django. |
 | `JWT_ALGORITHM` / `JWT_SIGNING_KEY` | **Deben coincidir exactamente con Django**; FastAPI no emite tokens, solo los valida. |
 | `DJANGO_API_URL` | URL base de la API de Django, usada para leer Empresa/Productos al construir el PDF. |
-| `SMTP_HOST` | Si queda vacío, el envío de correo se simula en modo consola (se registra en el log en vez de enviarse). |
-| `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_USE_TLS` | Configuración del servidor SMTP real, si se desea envío efectivo. |
-| `SMTP_FROM_EMAIL` / `SMTP_FROM_NAME` | Remitente del correo con el PDF adjunto. |
+| `BREVO_API_KEY` | Clave de la API HTTP de Brevo (`https://app.brevo.com/settings/keys/api`). Si queda vacía, el envío de correo se simula en modo consola (se registra en el log en vez de enviarse). El envío se hace con `curl` (ver `app.services.email_service`), no SMTP, precisamente para evitar el bloqueo de puertos SMTP salientes en el plan gratuito de Render. |
+| `BREVO_FROM_EMAIL` / `BREVO_FROM_NAME` | Remitente del correo con el PDF adjunto. |
 | `CORS_ALLOWED_ORIGINS` | Orígenes permitidos. |
 | `EMBEDDINGS_PROVIDER` | Proveedor de embeddings del agente de IA: `gemini` (por defecto, gratis) u `openai` (alternativa de pago). Ver `docs/agente_ia_decision_proveedor.md` para la comparación completa. Sin la clave del proveedor seleccionado, `POST /api/ia/embeddings` y `GET /api/ia/buscar` responden `502 Bad Gateway`; el resto del servicio no se ve afectado. |
 | `GEMINI_API_KEY` / `GEMINI_EMBEDDINGS_MODEL` | Clave y modelo de Gemini (proveedor por defecto). Clave gratuita en https://aistudio.google.com/apikey. |
@@ -353,7 +357,7 @@ El detalle de todos los endpoints de Django, con ejemplos `curl`, está en `back
 - [x] Contraseña del Administrador encriptada (hasher PBKDF2 por defecto de Django).
 - [x] Vista Inventario: registro y consulta de existencias por Empresa. Registrar un producto ya existente incrementa la cantidad en vez de duplicar el registro.
 - [x] Descarga del PDF de inventario de una empresa.
-- [x] Envío del PDF de inventario por correo (con modo "consola" de respaldo si no hay servidor SMTP configurado).
+- [x] Envío del PDF de inventario por correo consumiendo directamente la API HTTP de Brevo con `curl` (con modo "consola" de respaldo si no hay `BREVO_API_KEY` configurada), sin SMTP, para evitar el bloqueo de puertos SMTP salientes del plan gratuito de Render.
 - [x] Permisos de rol (Administrador/Externo) validados siempre en el backend (Django y FastAPI), nunca solo en el frontend.
 - [x] Capa de dominio (`domain/`) desacoplada de Django/FastAPI/HTTP, instalable de forma aislada, cubriendo las entidades del negocio de forma general: `Inventario` (VO `Cantidad`), `Empresa` (VO `Nit`) y `Producto` (VO `Precio`) — no solo Inventario. Verificada con una suite de pruebas automatizadas (`pytest`, 43 pruebas en verde).
 - [x] `pyproject.toml` del paquete de dominio, gestionado con Poetry.
@@ -362,6 +366,7 @@ El detalle de todos los endpoints de Django, con ejemplos `curl`, está en `back
 - [x] Uso efectivo de las 7 tecnologías obligatorias: Python, Django, FastAPI, React, PostgreSQL, SQLAlchemy y Next.js.
 - [x] **Agente de IA con pgvector:** PostgreSQL con la extensión `pgvector` habilitada, tabla `producto_embedding`, generación de embeddings con Gemini por defecto (u OpenAI como alternativa, configurable) vía `POST /api/ia/embeddings`, y búsqueda semántica vía `GET /api/ia/buscar`, con el criterio de relevancia (umbral de distancia coseno) resuelto como regla de dominio, no como consulta SQL suelta. Ver `docs/agente_ia_decision_proveedor.md`, `docs/agente_ia_ingesta_embeddings.md` y `docs/agente_ia_busqueda_semantica.md`.
 - [x] **Integración visual del buscador semántico en la vista Productos:** panel plegable "Búsqueda con IA" (`BusquedaSemanticaProductos`) que consulta `GET /api/ia/buscar` en lenguaje natural y muestra código, nombre, características y porcentaje de similitud de cada resultado; cada resultado permite ubicar la empresa asociada directamente en el filtro de la tabla de Productos.
+- [x] **Re-embeddado automático del agente de IA al crear/editar un Producto en Django:** `ProductoViewSet` dispara `POST /api/ia/embeddings` en FastAPI (reenviando el token del Administrador de la petición actual) justo después de guardar el Producto, vía `apps.productos.services.fastapi_ia_client`. Es "best-effort": si el agente de IA no responde o el proveedor de embeddings falla, el Producto queda guardado igual y solo se registra un warning; el endpoint manual `POST /api/ia/embeddings` se mantiene disponible para reingestar histórico o recuperar ese caso puntual. Con esto, el panel "Búsqueda con IA" queda siempre al día sin pasos manuales adicionales. Ver `docs/agente_ia_ingesta_embeddings.md`.
 - [x] Filtro por Empresa en el listado de Productos (`GET /api/productos/?empresa=<nit>`), reutilizado tanto por el frontend como por el propio agente de IA para resolver los datos de negocio de cada resultado.
 - [x] **Indicadores de rendimiento y calidad:** análisis estático de código (`ruff`, equivalente a SonarQube) sobre los tres paquetes Python, y ESLint sobre el frontend, ambos como herramientas de desarrollo (no dependencias de producción); build de producción del frontend verificado (6/6 rutas estáticas). Ver `docs/indicadores_calidad.md` para el detalle completo, incluida la justificación de por qué Lighthouse no pudo ejecutarse en el entorno de desarrollo usado y por qué GTmetrix no aplica sin despliegue público.
 

@@ -56,9 +56,10 @@ async def manejar_error_no_controlado(request: Request, exc: Exception) -> JSONR
     """
     Convierte cualquier excepción no controlada en una respuesta JSON normal.
 
-    Sin este manejador, un error inesperado (por ejemplo, en la conexión
-    SMTP) escapa del middleware de CORS y el navegador lo reporta como un
-    falso bloqueo de CORS, ocultando el error real.
+    Sin este manejador, un error inesperado (por ejemplo, al invocar
+    curl contra la API de Brevo) escapa del middleware de CORS y el
+    navegador lo reporta como un falso bloqueo de CORS, ocultando el
+    error real.
     """
     _logger.exception("Error no controlado en %s %s", request.method, request.url.path)
     return JSONResponse(

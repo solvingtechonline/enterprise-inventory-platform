@@ -36,16 +36,17 @@ class Settings(BaseSettings):
     DJANGO_API_URL: str = "http://localhost:8000/api"
 
     # --- Envío de correo (FastAPI es dueño del envío del PDF de
-    # Inventario). Si SMTP_HOST queda vacío, se usa un modo "consola"
-    # que registra el correo en el log en vez de enviarlo, útil para
-    # verificar el flujo sin un servidor SMTP real. ---
-    SMTP_HOST: str = ""
-    SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
-    SMTP_USE_TLS: bool = True
-    SMTP_FROM_EMAIL: str = "inventario@lite-thinking.local"
-    SMTP_FROM_NAME: str = "Lite Thinking - Inventario"
+    # Inventario), vía la API HTTP de Brevo (antes Sendinblue), invocada
+    # con curl (ver app.services.email_service). Se eligió la API sobre
+    # SMTP porque el plan gratuito de Render bloquea/falla en los
+    # puertos SMTP salientes (25/587/465); la API de Brevo viaja por
+    # HTTPS (443), igual que cualquier otra llamada REST del proyecto.
+    # Si BREVO_API_KEY queda vacía, se usa un modo "consola" que
+    # registra el correo en el log en vez de enviarlo, útil para
+    # verificar el flujo sin una clave real. ---
+    BREVO_API_KEY: str = ""
+    BREVO_FROM_EMAIL: str = "inventario@lite-thinking.local"
+    BREVO_FROM_NAME: str = "Lite Thinking - Inventario"
 
     # --- CORS ---
     CORS_ALLOWED_ORIGINS: str = "http://localhost:3000"
