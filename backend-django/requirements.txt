@@ -5,6 +5,7 @@ psycopg[binary]==3.3.4
 python-decouple==3.8
 django-cors-headers==4.9.0
 gunicorn==23.0.0
+whitenoise==6.11.0
 
 # Capa de dominio desacoplada (Arquitectura Limpia) - paquete local via Poetry
 -e ../domain
