@@ -1,0 +1,20 @@
+fastapi==0.139.0
+uvicorn[standard]==0.50.2
+sqlalchemy==2.0.51
+psycopg[binary]==3.3.4
+pydantic-settings==2.14.2
+python-jose==3.5.0
+email-validator==2.2.0
+httpx==0.28.1
+reportlab==4.2.5
+
+# Agente de IA con pgvector - infraestructura de embeddings.
+# pgvector: tipo de columna Vector para SQLAlchemy sobre la extensión pgvector.
+# openai: SDK del proveedor de pago alternativo (ver docs/agente_ia_decision_proveedor.md).
+# El proveedor por defecto (Gemini) no necesita SDK propio: usa httpx,
+# ya listado arriba como dependencia del proyecto.
+pgvector==0.5.0
+openai==2.44.0
+
+# Capa de dominio desacoplada (Arquitectura Limpia) - paquete local via Poetry
+-e ../domain

@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/*
+ * Sistema de diseño — "Libro Mayor" (ledger)
+ * Empresas / Productos / Inventario son, en esencia, un libro contable:
+ * el tono visual toma prestado de esa tradición (serif para títulos,
+ * mono para códigos y cifras) sin volverse un pastiche.
+ */
+:root {
+  --color-bg: #eef1f0;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f6f5;
+  --color-border: #d8dedb;
+  --color-ink: #16211e;
+  --color-ink-muted: #5c6b66;
+  --color-primary: #0e4b45;
+  --color-primary-hover: #0a3733;
+  --color-primary-soft: #e2ece9;
+  --color-accent: #b6812f;
+  --color-danger: #a13a34;
+  --color-danger-soft: #f7e6e4;
+  --color-success: #1b6b3f;
+  --color-success-soft: #e4f0e7;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-border: var(--color-border);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-accent: var(--color-accent);
+  --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}

@@ -1,0 +1,12 @@
+# Herramientas de análisis estático de calidad de código.
+#
+# Este archivo es EXCLUSIVAMENTE de desarrollo/evaluación. No se instala en
+# producción y no aparece en backend-django/requirements.txt ni en
+# backend-fastapi/requirements.txt. Ver docs/indicadores_calidad.md.
+#
+# Uso (desde la raíz del repo, con un entorno virtual activo):
+#   pip install -r requirements-dev.txt
+#   ruff check domain/src domain/tests backend-django backend-fastapi \
+#       --exclude "*/migrations/*" --select E,F,W,I,B,C90,UP,SIM,N
+
+ruff==0.15.20
