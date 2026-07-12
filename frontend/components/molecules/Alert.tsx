@@ -15,7 +15,7 @@ const clasesPorTono: Record<Tono, string> = {
 export function Alert({ tono = "info", children, onDismiss }: Props) {
   return (
     <div
-      className={`flex items-start justify-between gap-3 rounded-sm border px-4 py-3 text-sm ${clasesPorTono[tono]}`}
+      className={`flex items-start justify-between gap-3 rounded-sm border px-4 py-3 text-sm animate-alert-in ${clasesPorTono[tono]}`}
       role={tono === "peligro" ? "alert" : "status"}
     >
       <span>{children}</span>

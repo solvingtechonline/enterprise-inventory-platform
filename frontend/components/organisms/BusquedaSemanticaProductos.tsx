@@ -125,7 +125,7 @@ export function BusquedaSemanticaProductos({ token, onFiltrarEmpresa }: Props) {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <Badge tono="neutro">{resultado.producto_codigo}</Badge>
-                        <span className="truncate text-ink">{resultado.nombre ?? "—"}</span>
+                        <span className="truncate text-ink">{resultado.nombre ?? "-"}</span>
                       </div>
                       {resultado.caracteristicas && (
                         <p className="mt-1 truncate text-xs text-ink-muted">

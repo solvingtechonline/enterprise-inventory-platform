@@ -3,7 +3,7 @@ Puerto de dominio: GeneradorEmbeddings.
 
 Define el contrato para convertir un texto en un vector de embedding,
 sin que el dominio conozca el proveedor concreto (OpenAI, Anthropic,
-LangChain o un modelo local) ni su SDK — mismo patrón de Arquitectura
+LangChain o un modelo local) ni su SDK. Mismo patrón de Arquitectura
 Limpia que los repositorios de persistencia: el requisito funcional
 (generar embeddings) es lo que importa al dominio, no el proveedor.
 
@@ -29,6 +29,6 @@ class GeneradorEmbeddings(ABC):
         `lite_thinking_domain.exceptions.ErrorGeneracionEmbedding` si el
         proveedor falla (timeout, credenciales, red, límite de tasa,
         etc.), en vez de dejar escapar la excepción específica del SDK
-        usado — así el dominio y la capa de API no quedan acoplados a
+        usado. Así el dominio y la capa de API no quedan acoplados a
         un proveedor concreto.
         """

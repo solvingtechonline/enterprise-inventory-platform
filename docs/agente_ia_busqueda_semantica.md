@@ -1,4 +1,4 @@
-# Agente de IA — Búsqueda semántica
+# Agente de IA: búsqueda semántica
 
 *Complementa `docs/agente_ia_decision_proveedor.md` y
 `docs/agente_ia_ingesta_embeddings.md`.*
@@ -82,7 +82,7 @@ entorno. En su lugar, se documentan **dos cosas**:
    (`EmbeddingProductoService`, la misma clase que usa el endpoint),
    con un generador de vectores determinístico (bolsa de palabras) en
    vez de una llamada real al proveedor de embeddings, y un repositorio en memoria en vez
-   de pgvector — script incluido en
+   de pgvector. Script incluido en
    `docs/simulacion_busqueda_semantica.py`. Esto valida que la regla de
    negocio (ingesta → búsqueda → filtro de relevancia) funciona de
    punta a punta con datos coherentes, sin mockear el servicio bajo
@@ -117,7 +117,7 @@ Comando ejecutado: `python docs/simulacion_busqueda_semantica.py`
 |---|---|---|---|
 | "laptop para diseño" | P-001 (Laptop 15", diseño gráfico) | Sí (similitud 0.82) | Devuelve P-001, correcto |
 | "teclado para la oficina" | P-002 (Teclado mecánico, oficina) | Sí (similitud 0.63) | Devuelve P-002, correcto |
-| "boleto de avión a Miami" | (ninguno con relación real) | No | Lista vacía — el umbral de relevancia descarta correctamente los 3 productos ingeridos, ninguno relacionado con viajes |
+| "boleto de avión a Miami" | (ninguno con relación real) | No | Lista vacía, el umbral de relevancia descarta correctamente los 3 productos ingeridos, ninguno relacionado con viajes |
 
 Esto confirma dos cosas a la vez: (a) el flujo ingesta → búsqueda
 devuelve el producto correcto cuando existe relación semántica, y (b)
@@ -147,7 +147,7 @@ curl -G http://localhost:8001/api/ia/buscar \
   --data-urlencode "limite=5"
 ```
 
-Respuesta esperada (forma, no valores exactos — dependen de los
+Respuesta esperada (forma, no valores exactos: dependen de los
 productos reales cargados):
 
 ```json

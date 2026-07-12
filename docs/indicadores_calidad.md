@@ -26,7 +26,7 @@ que SonarQube evalúa en su perfil "Sonar way" para Python (bugs, code smells,
 convenciones), sin requerir un servidor SonarQube propio.
 
 Se declara como **dependencia de desarrollo únicamente**, en
-`requirements-dev.txt` en la raíz del repo — **no** se agregó a
+`requirements-dev.txt` en la raíz del repo. **No** se agregó a
 `backend-django/requirements.txt` ni a `backend-fastapi/requirements.txt`, ni
 al `pyproject.toml` de producción del dominio (solo como referencia en este
 documento y en el comando reproducible de más abajo).
@@ -84,13 +84,13 @@ las decisiones arquitectónicas del proyecto.
 Se decidió no aplicar refactors grandes basados en estos hallazgos. Lo que
 sigue **no se modificó** y queda documentado como deuda de bajo riesgo:
 
-- **`E501` (línea > 88 caracteres) — 53 instancias en total** (13 en
+- **`E501` (línea > 88 caracteres): 53 instancias en total** (13 en
   `domain`, 12 en `backend-django`, 28 en `backend-fastapi`). Es un hallazgo
   puramente cosmético (longitud de línea), pero corregirlo de forma
   sistemática habría implicado tocar decenas de archivos en todo el
   repositorio para un beneficio marginal, aunque cada cambio individual sea
   trivial. Se deja como deuda de estilo de bajo riesgo.
-- **`B008` en `backend-fastapi` — 17 instancias**
+- **`B008` en `backend-fastapi`: 17 instancias**
   (`Depends(...)` como valor por defecto de un parámetro, en `deps.py`,
   `api/ia.py`, `api/inventario.py`, `core/security.py`). Esto **no es un
   defecto real**: es el patrón idiomático y documentado de FastAPI para
@@ -139,7 +139,7 @@ npm run lint
 > frontend@0.1.0 lint
 > eslint
 
-(sin salida — 0 errores, 0 advertencias)
+(sin salida: 0 errores, 0 advertencias)
 ```
 
 **0 hallazgos.** No se requirió ninguna corrección en el frontend.
@@ -148,7 +148,7 @@ npm run lint
 
 ## 3. Lighthouse (frontend en modo producción)
 
-### 3.1 Build de producción — evidencia real
+### 3.1 Build de producción: evidencia real
 
 Se generó el build de producción real del frontend:
 
@@ -198,7 +198,7 @@ sin librerías pesadas adicionales (no se usan librerías de gráficas, mapas, o
 UI kits grandes en el frontend), coherente con el principio de simplicidad
 del proyecto.
 
-### 3.2 Ejecución de Lighthouse — limitación real del entorno, documentada
+### 3.2 Ejecución de Lighthouse: limitación real del entorno, documentada
 
 Se intentó ejecutar Lighthouse real contra el build de producción:
 
@@ -271,10 +271,10 @@ producción documentado en la sección 3.1 puede analizarse directamente en
 
 | Indicador | Estado | Evidencia |
 |---|---|---|
-| Análisis de calidad Python (equivalente SonarQube) | **Ejecutado, real** | Sección 1 — 92 → 72 hallazgos, 21 corregidos, resto documentado |
-| Análisis de calidad frontend (ESLint) | **Ejecutado, real** | Sección 2 — 0 hallazgos |
-| Build de producción del frontend | **Ejecutado, real** | Sección 3.1 — build exitoso, 6/6 rutas estáticas, 772 KB |
-| Lighthouse | **No ejecutable en el entorno de desarrollo usado** (documentado, no estimado) | Sección 3.2 y 3.3 — causa raíz y pasos reproducibles |
+| Análisis de calidad Python (equivalente SonarQube) | **Ejecutado, real** | Sección 1: 92 → 72 hallazgos, 21 corregidos, resto documentado |
+| Análisis de calidad frontend (ESLint) | **Ejecutado, real** | Sección 2: 0 hallazgos |
+| Build de producción del frontend | **Ejecutado, real** | Sección 3.1: build exitoso, 6/6 rutas estáticas, 772 KB |
+| Lighthouse | **No ejecutable en el entorno de desarrollo usado** (documentado, no estimado) | Sección 3.2 y 3.3: causa raíz y pasos reproducibles |
 | GTmetrix | **No aplica** (sin despliegue público, documentado) | Sección 4 |
 
 Ninguna herramienta de análisis (`ruff`, `eslint`) quedó como dependencia de

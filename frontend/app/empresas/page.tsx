@@ -31,6 +31,7 @@ export default function EmpresasPage() {
   const [empresaEnEdicion, setEmpresaEnEdicion] = useState<Empresa | undefined>(undefined);
   const [empresaAEliminar, setEmpresaAEliminar] = useState<Empresa | null>(null);
   const [isEliminando, setIsEliminando] = useState(false);
+  const [avisoExito, setAvisoExito] = useState<string | null>(null);
 
   const cargarEmpresas = useCallback(async () => {
     setIsLoading(true);
@@ -39,6 +40,7 @@ export default function EmpresasPage() {
       const datos = await listarEmpresas();
       setEmpresas(datos);
     } catch (error) {
+      setAvisoExito(null);
       setErrorCarga(
         error instanceof ApiError ? error.message : "No se pudieron cargar las empresas.",
       );
@@ -72,8 +74,10 @@ export default function EmpresasPage() {
         { nombre: data.nombre, direccion: data.direccion, telefono: data.telefono },
         token,
       );
+      setAvisoExito("Empresa actualizada correctamente.");
     } else {
       await crearEmpresa(data, token);
+      setAvisoExito("Empresa creada correctamente.");
     }
     setModalAbierto(false);
     await cargarEmpresas();
@@ -85,8 +89,11 @@ export default function EmpresasPage() {
     try {
       await eliminarEmpresa(empresaAEliminar.nit, token);
       setEmpresaAEliminar(null);
+      setAvisoExito("Empresa eliminada correctamente.");
       await cargarEmpresas();
     } catch (error) {
+      setEmpresaAEliminar(null);
+      setAvisoExito(null);
       setErrorCarga(error instanceof ApiError ? error.message : "No se pudo eliminar la empresa.");
     } finally {
       setIsEliminando(false);
@@ -109,6 +116,14 @@ export default function EmpresasPage() {
         <div className="mb-4">
           <Alert tono="peligro" onDismiss={() => setErrorCarga(null)}>
             {errorCarga}
+          </Alert>
+        </div>
+      )}
+
+      {avisoExito && (
+        <div className="mb-4">
+          <Alert tono="exito" onDismiss={() => setAvisoExito(null)}>
+            {avisoExito}
           </Alert>
         </div>
       )}
@@ -151,7 +166,7 @@ export default function EmpresasPage() {
       {empresaAEliminar && (
         <ConfirmDialog
           title="Eliminar empresa"
-          description={`¿Eliminar "${empresaAEliminar.nombre}" (${empresaAEliminar.nit})? Esta acción no se puede deshacer y también eliminará sus productos asociados.`}
+          description={`¿Eliminar "${empresaAEliminar.nombre}" (${empresaAEliminar.nit})? Esta acción no se puede deshacer. Se eliminarán también sus productos asociados, siempre que ninguno tenga unidades registradas en inventario.`}
           isLoading={isEliminando}
           onConfirm={confirmarEliminacion}
           onCancel={() => setEmpresaAEliminar(null)}

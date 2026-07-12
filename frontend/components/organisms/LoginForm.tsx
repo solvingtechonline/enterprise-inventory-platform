@@ -27,6 +27,7 @@ export function LoginForm() {
 
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
+  const [mostrarPassword, setMostrarPassword] = useState(false);
   const [errores, setErrores] = useState<{ correo?: string; password?: string }>({});
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,15 +77,59 @@ export function LoginForm() {
       </FormField>
 
       <FormField htmlFor="password" label="Contraseña" required error={errores.password}>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          invalid={Boolean(errores.password)}
-          placeholder="••••••••"
-        />
+        <div className="relative">
+          <Input
+            id="password"
+            type={mostrarPassword ? "text" : "password"}
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            invalid={Boolean(errores.password)}
+            placeholder="••••••••"
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setMostrarPassword((valor) => !valor)}
+            aria-label={mostrarPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-ink-muted
+              hover:text-ink focus-visible:outline focus-visible:outline-2
+              focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            {mostrarPassword ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+                <line x1="3" y1="21" x2="21" y2="3" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+        </div>
       </FormField>
 
       <Button type="submit" className="w-full" isLoading={isLoading}>

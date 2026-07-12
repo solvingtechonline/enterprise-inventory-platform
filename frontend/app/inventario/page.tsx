@@ -121,6 +121,7 @@ function InventarioContenido() {
       setRegistroAEliminar(null);
       await cargarInventarioYProductos();
     } catch (err) {
+      setRegistroAEliminar(null);
       setError(err instanceof ApiError ? err.message : "No se pudo eliminar el registro.");
     } finally {
       setIsEliminando(false);

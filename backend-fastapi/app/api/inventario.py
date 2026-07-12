@@ -145,6 +145,38 @@ def enviar_reporte_por_correo(
 
 
 @router.get(
+    "/verificar-producto",
+    response_model=InventarioRead,
+    summary="Consultar el registro de inventario de un producto en una empresa",
+)
+def verificar_producto(
+    empresa_nit: str = Query(..., description="NIT de la empresa dueña del producto."),
+    producto_codigo: str = Query(..., description="Código del producto a verificar."),
+    servicio: InventarioService = Depends(obtener_inventario_service),
+) -> InventarioRead:
+    """
+    Se usa desde `apps.productos.services.eliminacion_producto` (Django)
+    para decidir si un Producto puede eliminarse: si tiene un registro
+    de inventario con `cantidad > 0`, Django bloquea el borrado antes de
+    tocar nada. Ubicado antes de `GET /{inventario_id}` a propósito
+    (mismo motivo que `/reporte/pdf` y `/reporte/enviar`): si fuera
+    después, FastAPI intentaría interpretar "verificar-producto" como
+    un `inventario_id` entero y fallaría con 422 en vez de resolver
+    esta ruta.
+    """
+    registro = servicio.obtener_por_empresa_y_producto(empresa_nit, producto_codigo)
+    if registro is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                f"No hay registro de inventario para el producto "
+                f"'{producto_codigo}' en la empresa '{empresa_nit}'."
+            ),
+        )
+    return _a_schema(registro)
+
+
+@router.get(
     "/{inventario_id}",
     response_model=InventarioRead,
     summary="Obtener un registro de inventario por id",

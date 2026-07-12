@@ -13,7 +13,7 @@ Nota sobre `buscar_similares` (búsqueda semántica): usa el
 operador de distancia coseno de pgvector (`<=>`, expuesto por
 `Vector.cosine_distance`) tanto para ordenar como para devolver el
 valor de distancia de cada fila. Este adaptador no decide qué tan
-lejos es "demasiado lejos" — eso es una regla de negocio que vive en
+lejos es "demasiado lejos": eso es una regla de negocio que vive en
 `EmbeddingProductoService.buscar_semanticamente` (dominio), no en esta
 consulta SQL. Este archivo solo traduce entre pgvector y el puerto de
 dominio.

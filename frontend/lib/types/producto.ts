@@ -3,9 +3,9 @@ export type Moneda = "COP" | "USD" | "EUR";
 export const MONEDAS: Moneda[] = ["COP", "USD", "EUR"];
 
 export const ETIQUETA_MONEDA: Record<Moneda, string> = {
-  COP: "COP — Peso colombiano",
-  USD: "USD — Dólar estadounidense",
-  EUR: "EUR — Euro",
+  COP: "COP - Peso colombiano",
+  USD: "USD - Dólar estadounidense",
+  EUR: "EUR - Euro",
 };
 
 export interface Precio {

@@ -76,7 +76,7 @@ export function InventarioFormModal({
             <Input
               id="producto"
               mono
-              value={`${registroExistente?.producto_codigo} — ${
+              value={`${registroExistente?.producto_codigo} - ${
                 productos.find((p) => p.codigo === registroExistente?.producto_codigo)?.nombre ?? ""
               }`}
               disabled
@@ -90,7 +90,7 @@ export function InventarioFormModal({
             >
               {productos.map((producto) => (
                 <option key={producto.codigo} value={producto.codigo}>
-                  {producto.codigo} — {producto.nombre}
+                  {producto.codigo} - {producto.nombre}
                 </option>
               ))}
             </Select>

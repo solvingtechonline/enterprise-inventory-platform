@@ -38,6 +38,7 @@ function ProductosContenido() {
   const [productoEnEdicion, setProductoEnEdicion] = useState<Producto | undefined>(undefined);
   const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);
   const [isEliminando, setIsEliminando] = useState(false);
+  const [avisoExito, setAvisoExito] = useState<string | null>(null);
 
   const cargarTodo = useCallback(async () => {
     if (!token) return;
@@ -49,6 +50,7 @@ function ProductosContenido() {
       const listaProductos = await listarProductos(token, empresaFiltro || undefined);
       setProductos(listaProductos);
     } catch (err) {
+      setAvisoExito(null);
       setError(err instanceof ApiError ? err.message : "No se pudieron cargar los productos.");
     } finally {
       setIsLoading(false);
@@ -76,8 +78,10 @@ function ProductosContenido() {
     if (!token) return;
     if (productoEnEdicion) {
       await actualizarProducto(productoEnEdicion.id, data, token);
+      setAvisoExito("Producto actualizado correctamente.");
     } else {
       await crearProducto(data, token);
+      setAvisoExito("Producto creado correctamente.");
     }
     setModalAbierto(false);
     await cargarTodo();
@@ -89,8 +93,11 @@ function ProductosContenido() {
     try {
       await eliminarProducto(productoAEliminar.id, token);
       setProductoAEliminar(null);
+      setAvisoExito("Producto eliminado correctamente.");
       await cargarTodo();
     } catch (err) {
+      setProductoAEliminar(null);
+      setAvisoExito(null);
       setError(err instanceof ApiError ? err.message : "No se pudo eliminar el producto.");
     } finally {
       setIsEliminando(false);
@@ -105,6 +112,14 @@ function ProductosContenido() {
         <div className="mb-4">
           <Alert tono="peligro" onDismiss={() => setError(null)}>
             {error}
+          </Alert>
+        </div>
+      )}
+
+      {avisoExito && (
+        <div className="mb-4">
+          <Alert tono="exito" onDismiss={() => setAvisoExito(null)}>
+            {avisoExito}
           </Alert>
         </div>
       )}

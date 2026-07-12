@@ -1,4 +1,4 @@
-# Agente de IA — Ingesta de embeddings
+# Agente de IA: ingesta de embeddings
 
 *Complementa `docs/agente_ia_decision_proveedor.md`. El agente de IA está
 implementado dentro de FastAPI, reutilizando la conexión ya existente a
@@ -26,7 +26,7 @@ PostgreSQL.*
   (`backend-fastapi/app/repositories/sqlalchemy_embedding_producto_repository.py`):
   implementa el puerto sobre la tabla `producto_embedding`, incluida
   `buscar_similares` (con el operador de distancia coseno de pgvector),
-  usada por el endpoint de búsqueda semántica — ver
+  usada por el endpoint de búsqueda semántica. Ver
   `docs/agente_ia_busqueda_semantica.md`.
 - **Adaptador del proveedor por defecto `GeminiGeneradorEmbeddings`**
   (`backend-fastapi/app/services/gemini_embeddings_provider.py`): llama
@@ -80,7 +80,7 @@ o el proveedor de embeddings configurado falla (por ejemplo, sin
 `GEMINI_API_KEY`), el Producto en Django **igual queda guardado**; el
 cliente solo registra un `warning` en el log y no propaga el error.
 Guardar un Producto no debe depender de la disponibilidad del agente
-de IA — mismo criterio de "no tumbar el resto del servicio" que ya
+de IA: mismo criterio de "no tumbar el resto del servicio" que ya
 usa el propio endpoint de FastAPI ante un fallo del proveedor.
 
 El endpoint manual `POST /api/ia/embeddings` **se mantiene disponible**

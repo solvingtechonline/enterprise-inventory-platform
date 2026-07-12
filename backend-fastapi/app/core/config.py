@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     CORS_ALLOWED_ORIGINS: str = "http://localhost:3000"
 
     # --- Agente de IA con pgvector. Proveedor de embeddings:
-    # configurable vía EMBEDDINGS_PROVIDER ("gemini" u "openai") — ver
+    # configurable vía EMBEDDINGS_PROVIDER ("gemini" u "openai"). Ver
     # docs/agente_ia_decision_proveedor.md para la comparación. Por
     # defecto se usa Gemini porque su API tiene una capa gratuita real
     # (sin tarjeta de crédito); OpenAI queda disponible como alternativa

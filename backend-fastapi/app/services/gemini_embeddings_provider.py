@@ -3,7 +3,7 @@ Adaptador de infraestructura: implementa el puerto de dominio
 `GeneradorEmbeddings` llamando a la API de embeddings de Google Gemini
 (`gemini-embedding-001`), usando `httpx` (ya es dependencia del
 proyecto para `django_client`) en vez de agregar el SDK oficial de
-Google — evita una dependencia nueva para una sola llamada REST.
+Google, evitando así una dependencia nueva para una sola llamada REST.
 
 Se eligió como proveedor por defecto porque el Gemini API tiene una
 capa gratuita real (limitada por tasa, sin tarjeta de crédito), a

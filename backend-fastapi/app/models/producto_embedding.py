@@ -13,7 +13,7 @@ valor (producto_codigo), mismo criterio que InventarioModel con
 `empresa_nit`/`producto_codigo`.
 
 La dimensión del vector (1536) corresponde al proveedor de embeddings
-elegido para el proyecto — ver docs/agente_ia_decision_proveedor.md.
+elegido para el proyecto. Ver docs/agente_ia_decision_proveedor.md.
 """
 
 from __future__ import annotations

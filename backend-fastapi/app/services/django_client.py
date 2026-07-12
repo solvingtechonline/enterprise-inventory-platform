@@ -3,8 +3,8 @@ Cliente HTTP hacia la API REST de Django.
 
 FastAPI necesita datos de Empresa y Productos para armar el PDF de
 Inventario, pero esas tablas son administradas exclusivamente por el
-ORM de Django. En lugar de leerlas directamente desde SQLAlchemy —lo
-que fusionaría la persistencia—, este módulo las consulta vía la API
+ORM de Django. En lugar de leerlas directamente desde SQLAlchemy (lo
+que fusionaría la persistencia), este módulo las consulta vía la API
 REST de Django que ya existe, reenviando el mismo token del
 Administrador que llegó a FastAPI (un único emisor de autenticación,
 válido en ambos backends).

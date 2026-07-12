@@ -1,4 +1,4 @@
-# Verificación de endpoints — Backend Django
+# Verificación de endpoints del backend Django
 
 > Nota de alcance: los tests automatizados de endpoints y CI/CD quedaron
 > fuera del alcance de este proyecto. Por eso esta verificación es manual
@@ -39,13 +39,13 @@ curl -X POST http://localhost:8000/api/auth/refresh/ \
   -d '{"refresh": "<refresh token>"}'
 ```
 
-## 3. Empresas — lectura pública (rol Externo, sin token)
+## 3. Empresas: lectura pública (rol Externo, sin token)
 
 ```bash
 curl http://localhost:8000/api/empresas/
 ```
 
-## 4. Empresas — escritura requiere Administrador
+## 4. Empresas: escritura requiere Administrador
 
 ```bash
 # Sin token: debe responder 401
@@ -72,7 +72,7 @@ curl -X DELETE http://localhost:8000/api/empresas/900123456-7/ \
   -H "Authorization: Bearer $ACCESS"
 ```
 
-## 5. Productos — requiere Administrador para todo (incluida lectura)
+## 5. Productos: requiere Administrador para todo (incluida lectura)
 
 ```bash
 # Sin token: debe responder 401
