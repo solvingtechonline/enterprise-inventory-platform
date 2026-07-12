@@ -42,7 +42,7 @@ El problema que resuelve es el de una pequeña organización que necesita centra
 - **Poetry**: gestiona las dependencias del paquete de dominio (`domain/`), que se instala como dependencia editable (`-e ../domain`) tanto en Django como en FastAPI.
 - **python-decouple**: lectura de variables de entorno en Django.
 - **pydantic-settings**: lectura de variables de entorno en FastAPI.
-- **ruff** y **ESLint**: análisis estático de calidad de código (Python y frontend, respectivamente), como herramientas de desarrollo — nunca como dependencias de producción. Ver `docs/indicadores_calidad.md`.
+- **ruff** y **ESLint**: análisis estático de calidad de código (Python y frontend, respectivamente), como herramientas de desarrollo, nunca como dependencias de producción. Ver `docs/indicadores_calidad.md`.
 
 ## 4. Arquitectura
 
@@ -269,7 +269,7 @@ Al arrancar, FastAPI crea automáticamente las tablas `inventario` y `producto_e
 curl http://localhost:8001/health
 ```
 
-> **Agente de IA:** el módulo de búsqueda semántica (`POST /api/ia/embeddings`, `GET /api/ia/buscar`) requiere una clave del proveedor de embeddings configurado en `backend-fastapi/.env` — por defecto `GEMINI_API_KEY` (gratis, ver sección 8), o `OPENAI_API_KEY` si cambias `EMBEDDINGS_PROVIDER=openai`. Sin esa clave, el resto del servicio (Inventario, PDF, correo) sigue funcionando con normalidad; solo esos dos endpoints responderán `502 Bad Gateway` al intentar generar un embedding.
+> **Agente de IA:** el módulo de búsqueda semántica (`POST /api/ia/embeddings`, `GET /api/ia/buscar`) requiere una clave del proveedor de embeddings configurado en `backend-fastapi/.env`. Por defecto `GEMINI_API_KEY` (gratis, ver sección 8), o `OPENAI_API_KEY` si cambias `EMBEDDINGS_PROVIDER=openai`. Sin esa clave, el resto del servicio (Inventario, PDF, correo) sigue funcionando con normalidad; solo esos dos endpoints responderán `502 Bad Gateway` al intentar generar un embedding.
 
 ### 7.7. Frontend (Next.js)
 
@@ -359,7 +359,7 @@ El detalle de todos los endpoints de Django, con ejemplos `curl`, está en `back
 - [x] Descarga del PDF de inventario de una empresa.
 - [x] Envío del PDF de inventario por correo consumiendo directamente la API HTTP de Brevo con `curl` (con modo "consola" de respaldo si no hay `BREVO_API_KEY` configurada), sin SMTP, para evitar el bloqueo de puertos SMTP salientes del plan gratuito de Render.
 - [x] Permisos de rol (Administrador/Externo) validados siempre en el backend (Django y FastAPI), nunca solo en el frontend.
-- [x] Capa de dominio (`domain/`) desacoplada de Django/FastAPI/HTTP, instalable de forma aislada, cubriendo las entidades del negocio de forma general: `Inventario` (VO `Cantidad`), `Empresa` (VO `Nit`) y `Producto` (VO `Precio`) — no solo Inventario. Verificada con una suite de pruebas automatizadas (`pytest`, 43 pruebas en verde).
+- [x] Capa de dominio (`domain/`) desacoplada de Django/FastAPI/HTTP, instalable de forma aislada, cubriendo las entidades del negocio de forma general: `Inventario` (VO `Cantidad`), `Empresa` (VO `Nit`) y `Producto` (VO `Precio`), no solo Inventario. Verificada con una suite de pruebas automatizadas (`pytest`, 43 pruebas en verde).
 - [x] `pyproject.toml` del paquete de dominio, gestionado con Poetry.
 - [x] FastAPI valida el JWT emitido por Django sin tener autenticación propia.
 - [x] Frontend organizado bajo Atomic Design (`atoms/`, `molecules/`, `organisms/`, `templates/`).

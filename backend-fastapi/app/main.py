@@ -1,5 +1,5 @@
 """
-Microservicio FastAPI — dueño de la tabla Inventario.
+Microservicio FastAPI, dueño de la tabla Inventario.
 
 Responsabilidades implementadas:
 - Registro y consulta de Inventario por Empresa (CRUD completo).
@@ -7,9 +7,9 @@ Responsabilidades implementadas:
 - Generación del PDF de Inventario y envío por correo (integrado con la
   API de Empresas/Productos de Django vía `app.services.django_client`).
 - Agente de IA con pgvector: ingesta de embeddings de Producto
-  (`app.api.ia`) — generar y guardar el vector vigente de un
+  (`app.api.ia`), que genera y guarda el vector vigente de un
   producto con el proveedor de embeddings configurado (Gemini por
-  defecto, gratuito; OpenAI como alternativa) — y
+  defecto, gratuito; OpenAI como alternativa), y
   búsqueda semántica (`GET /api/ia/buscar`) sobre esos embeddings, con
   el criterio de relevancia resuelto en el dominio
   (`EmbeddingProductoService.buscar_semanticamente`). Ver

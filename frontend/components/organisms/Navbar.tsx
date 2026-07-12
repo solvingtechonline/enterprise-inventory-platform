@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Badge } from "../atoms/Badge";
 import { Button } from "../atoms/Button";
+import { ConfirmDialog } from "../molecules/ConfirmDialog";
 import { useAuth } from "../../lib/auth/AuthContext";
 
 const enlaces = [
@@ -17,9 +19,11 @@ export function Navbar() {
   const { isAdmin, correo, logout, isReady } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [confirmandoLogout, setConfirmandoLogout] = useState(false);
 
-  const handleLogout = () => {
+  const confirmarLogout = () => {
     logout();
+    setConfirmandoLogout(false);
     router.push("/");
   };
 
@@ -59,7 +63,7 @@ export function Navbar() {
                 <Badge tono="primario">administrador</Badge>
                 {correo && <p className="mt-0.5 text-xs text-ink-muted">{correo}</p>}
               </div>
-              <Button variante="secundario" tamano="sm" onClick={handleLogout}>
+              <Button variante="secundario" tamano="sm" onClick={() => setConfirmandoLogout(true)}>
                 Cerrar sesión
               </Button>
             </>
@@ -75,6 +79,16 @@ export function Navbar() {
           ) : null}
         </div>
       </div>
+
+      {confirmandoLogout && (
+        <ConfirmDialog
+          title="Cerrar sesión"
+          description="¿Seguro que quieres cerrar tu sesión?"
+          confirmLabel="Cerrar sesión"
+          onConfirm={confirmarLogout}
+          onCancel={() => setConfirmandoLogout(false)}
+        />
+      )}
     </header>
   );
 }

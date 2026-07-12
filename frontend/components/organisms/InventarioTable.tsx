@@ -11,11 +11,11 @@ interface Props {
 }
 
 function nombreProducto(productos: Producto[], codigo: string): string {
-  return productos.find((producto) => producto.codigo === codigo)?.nombre ?? "—";
+  return productos.find((producto) => producto.codigo === codigo)?.nombre ?? "-";
 }
 
 function formatearFecha(fecha: string | null): string {
-  if (!fecha) return "—";
+  if (!fecha) return "-";
   return new Date(fecha).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
 }
 

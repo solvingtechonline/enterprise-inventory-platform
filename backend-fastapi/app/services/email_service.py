@@ -122,7 +122,7 @@ def enviar_pdf_por_correo(
 
     if resultado.returncode != 0:
         # Error a nivel de proceso de curl (DNS, red inalcanzable, TLS, etc.),
-        # no una respuesta HTTP de Brevo — el detalle vive en stderr.
+        # no una respuesta HTTP de Brevo: el detalle vive en stderr.
         detalle_error = resultado.stderr.decode("utf-8", errors="replace").strip()
         logger.error(
             "curl falló al llamar a la API de Brevo (código de salida %s): %s",

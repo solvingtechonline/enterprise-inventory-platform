@@ -1,4 +1,4 @@
-# Decisión de proveedor de embeddings — Agente de IA
+# Decisión de proveedor de embeddings del Agente de IA
 
 ## Proveedor por defecto: Google Gemini (`gemini-embedding-001`, 1536 dimensiones)
 
@@ -56,7 +56,7 @@ que el permitido por la capa gratuita de Gemini.
 - Puerto de dominio `EmbeddingProductoRepository`
   (`domain/src/lite_thinking_domain/repositories/embedding_producto_repository.py`):
   `guardar`, `buscar_por_producto`, `buscar_similares`, `eliminar`. Sin
-  ninguna dependencia de pgvector/SQLAlchemy — es dominio puro.
+  ninguna dependencia de pgvector/SQLAlchemy: es dominio puro.
 - Entidad de dominio `EmbeddingProducto`
   (`domain/src/lite_thinking_domain/entities/embedding_producto.py`), con
   el vector como `list[float]` puro.
@@ -68,7 +68,7 @@ que el permitido por la capa gratuita de Gemini.
   `OpenAIGeneradorEmbeddings` (alternativa de pago), seleccionables vía
   `EMBEDDINGS_PROVIDER` sin tocar el dominio ni el endpoint.
 - Endpoints del agente de IA (`backend-fastapi/app/api/ia.py`): ingesta de
-  embeddings y búsqueda semántica — ver `docs/agente_ia_ingesta_embeddings.md` y
+  embeddings y búsqueda semántica. Ver `docs/agente_ia_ingesta_embeddings.md` y
   `docs/agente_ia_busqueda_semantica.md` para el detalle de cada uno.
 - Variables de entorno en `backend-fastapi` (`.env.example` y `core/config.py`):
   `EMBEDDINGS_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_EMBEDDINGS_MODEL`,

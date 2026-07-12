@@ -8,7 +8,7 @@ export default function LoginPage() {
           <p className="font-mono text-xs uppercase tracking-widest text-ink-muted">
             Prueba Técnica | Lite Thinking
           </p>
-          <h1 className="mt-1 font-display text-xl text-ink">Acceso de Administrador</h1>
+          <h1 className="mt-1 font-display text-xl text-ink">Acceso de administrador</h1>
         </div>
         <LoginForm />
       </div>

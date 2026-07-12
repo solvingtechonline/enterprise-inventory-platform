@@ -7,7 +7,7 @@ Administrado por el ORM de Django, igual que Empresa.
 El precio "en varias monedas" se modela como una tabla relacionada
 (PrecioProducto) en vez de columnas fijas por moneda, para poder
 registrar cualquier combinación de monedas por producto sin rediseñar
-el esquema — sin introducir conversión de tasas en tiempo real, que
+el esquema, y sin introducir conversión de tasas en tiempo real, que
 no es un requisito y sería sobreingeniería.
 """
 

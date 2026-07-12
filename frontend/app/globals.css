@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * Sistema de diseño — "Libro Mayor" (ledger)
+ * Sistema de diseño "Libro Mayor" (ledger)
  * Empresas / Productos / Inventario son, en esencia, un libro contable:
  * el tono visual toma prestado de esa tradición (serif para títulos,
  * mono para códigos y cifras) sin volverse un pastiche.
@@ -62,4 +62,57 @@ body {
 ::selection {
   background: var(--color-primary-soft);
   color: var(--color-primary);
+}
+
+/*
+ * Microinteracciones: entrada de Modal y Alert.
+ *
+ * Discretas y coherentes con el tono sobrio de "Libro Mayor": fade +
+ * escala/desplazamiento mínimos, nada "juguetón". Envueltas en
+ * prefers-reduced-motion: no-preference para que, si el usuario tiene
+ * activado "reducir movimiento" en su sistema, no se anime nada.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes modal-overlay-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modal-panel-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes alert-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-modal-overlay {
+    animation: modal-overlay-in 180ms ease-out;
+  }
+
+  .animate-modal-panel {
+    animation: modal-panel-in 180ms ease-out;
+  }
+
+  .animate-alert-in {
+    animation: alert-in 180ms ease-out;
+  }
 }

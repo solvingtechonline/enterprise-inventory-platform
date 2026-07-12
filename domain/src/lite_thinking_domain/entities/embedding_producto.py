@@ -8,7 +8,7 @@ driver de infraestructura.
 
 La identidad de negocio es el producto_codigo: cada producto tiene un
 único embedding vigente (volver a generarlo reemplaza el vector
-anterior, no crea un duplicado — mismo criterio que Inventario con
+anterior, no crea un duplicado, mismo criterio que Inventario con
 empresa_nit + producto_codigo).
 """
 

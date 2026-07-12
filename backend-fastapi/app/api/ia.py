@@ -128,7 +128,7 @@ def ingestar_embedding(
     except ErrorGeneracionEmbedding as exc:
         # El proveedor de IA falló (timeout/credenciales/red/dimensión
         # inesperada): se informa como error de dependencia externa, sin
-        # tumbar el microservicio — el resto de endpoints (Inventario,
+        # tumbar el microservicio. El resto de endpoints (Inventario,
         # PDF, correo) sigue funcionando con normalidad.
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -147,13 +147,40 @@ def ingestar_embedding(
     )
 
 
+@router.delete(
+    "/embeddings/{producto_codigo}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar el embedding vigente de un producto",
+)
+def eliminar_embedding(
+    producto_codigo: str,
+    servicio: EmbeddingProductoService = Depends(obtener_embedding_producto_service),
+) -> None:
+    """
+    Elimina el embedding de un producto de `producto_embedding`.
+
+    Se usa desde `apps.productos.views.ProductoViewSet.perform_destroy`
+    (Django) cuando se borra un Producto, para que no queden embeddings
+    huérfanos que la búsqueda semántica siga devolviendo. Que el
+    embedding no exista es un caso válido (por ejemplo, un producto
+    creado antes de que la ingesta automática estuviera activa) y se
+    reporta como 404, sin tratarse como un error grave.
+    """
+    eliminado = servicio.eliminar(producto_codigo)
+    if not eliminado:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No existe un embedding para el producto '{producto_codigo}'.",
+        )
+
+
 def _enriquecer_resultados(
     resultados: list, token: str
 ) -> list[ProductoResultadoBusqueda]:
     """
     Resuelve cada `producto_codigo` devuelto por el dominio contra la
     lista completa de productos de Django (un único GET, sin filtro de
-    empresa — `django_client.obtener_todos_los_productos`), para
+    empresa, vía `django_client.obtener_todos_los_productos`), para
     devolver nombre/características/empresa además de la
     distancia/similitud ya calculadas por
     `EmbeddingProductoService.buscar_semanticamente`.
@@ -174,14 +201,14 @@ def _enriquecer_resultados(
     enriquecidos: list[ProductoResultadoBusqueda] = []
     for resultado in resultados:
         producto = productos_por_codigo.get(resultado.producto_codigo)
+        if producto is None:
+            continue
         enriquecidos.append(
             ProductoResultadoBusqueda(
                 producto_codigo=resultado.producto_codigo,
-                nombre=producto.get("nombre") if producto else None,
-                caracteristicas=producto.get("caracteristicas") if producto else None,
-                empresa_nit=(
-                    producto.get("empresa") if producto else None
-                ),
+                nombre=producto.get("nombre"),
+                caracteristicas=producto.get("caracteristicas"),
+                empresa_nit=producto.get("empresa"),
                 distancia=resultado.distancia,
                 similitud=resultado.similitud,
             )

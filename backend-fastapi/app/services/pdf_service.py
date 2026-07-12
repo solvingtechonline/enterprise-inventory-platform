@@ -23,7 +23,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 def _formatear_precios(precios: list[dict]) -> str:
     if not precios:
-        return "—"
+        return "-"
     return " / ".join(f"{p['moneda']} {float(p['valor']):,.2f}" for p in precios)
 
 
@@ -56,10 +56,10 @@ def generar_pdf_inventario(
     )
 
     elementos = [
-        Paragraph(f"Inventario — {empresa.get('nombre', 'Empresa')}", estilo_titulo),
+        Paragraph(f"Inventario - {empresa.get('nombre', 'Empresa')}", estilo_titulo),
         Paragraph(
-            f"NIT: {empresa.get('nit', '—')} · Dirección: {empresa.get('direccion', '—')} "
-            f"· Teléfono: {empresa.get('telefono', '—')}",
+            f"NIT: {empresa.get('nit', '-')} · Dirección: {empresa.get('direccion', '-')} "
+            f"· Teléfono: {empresa.get('telefono', '-')}",
             estilo_subtitulo,
         ),
         Paragraph(
@@ -89,7 +89,7 @@ def generar_pdf_inventario(
         )
 
     if len(filas) == 1:
-        filas.append(["—", "Sin registros de inventario", "0", "—"])
+        filas.append(["-", "Sin registros de inventario", "0", "-"])
 
     tabla = Table(filas, colWidths=[3 * cm, 6 * cm, 2.5 * cm, 5.5 * cm], repeatRows=1)
     tabla.setStyle(

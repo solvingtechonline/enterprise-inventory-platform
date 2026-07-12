@@ -60,5 +60,16 @@ class InventarioService:
     def obtener_por_id(self, inventario_id: int) -> Inventario | None:
         return self._repositorio.obtener_por_id(inventario_id)
 
+    def obtener_por_empresa_y_producto(
+        self, empresa_nit: str, producto_codigo: str
+    ) -> Inventario | None:
+        """
+        Busca el registro de inventario (si existe) de un producto en una
+        empresa. Caso de uso: verificar si un producto tiene stock antes
+        de permitir borrarlo (ver `apps.productos.services.eliminacion_producto`
+        en Django), sin exponer el resto del CRUD de Inventario para eso.
+        """
+        return self._repositorio.buscar_por_empresa_y_producto(empresa_nit, producto_codigo)
+
     def eliminar(self, inventario_id: int) -> bool:
         return self._repositorio.eliminar(inventario_id)

@@ -5,7 +5,7 @@ Contiene la regla de "cómo se genera y se guarda el embedding vigente
 de un Producto": no es una llamada suelta a un SDK de IA dentro de un
 endpoint de FastAPI, sino un caso de uso de dominio que orquesta el
 puerto de generación (`GeneradorEmbeddings`) y el puerto de
-persistencia (`EmbeddingProductoRepository`), ambos inyectados —
+persistencia (`EmbeddingProductoRepository`), ambos inyectados:
 mismo patrón que `InventarioService` con `InventarioRepository`.
 
 Regla de negocio (ya establecida en la entidad `EmbeddingProducto`):
@@ -40,12 +40,24 @@ class EmbeddingProductoService:
     # (vectores opuestos); 1 equivale a ortogonalidad (sin relación
     # semántica). Un resultado con distancia mayor a este umbral se
     # descarta como ruido, aunque pgvector lo haya devuelto por estar
-    # entre los `limite` más cercanos disponibles en la tabla — la
+    # entre los `limite` más cercanos disponibles en la tabla: la
     # consulta SQL solo ordena por cercanía, no juzga si el resultado
     # tiene relación real con la búsqueda. Esa evaluación vive aquí,
     # en el dominio, no en el adaptador de persistencia ni en el
     # endpoint de FastAPI.
-    UMBRAL_DISTANCIA_RELEVANTE: float = 0.8
+    #
+    # Valor calibrado a partir de un caso real observado: una consulta
+    # claramente no relacionada ("tostadora") contra un producto no
+    # relacionado (un portátil, descrito con muy poco texto) devolvió
+    # 0.51 de distancia y pasaba el umbral anterior (0.8), que estaba
+    # demasiado cerca de la ortogonalidad (1.0) para descartar nada. Se
+    # bajó a 0.45 para excluir ese caso con margen real, no al límite.
+    # Es un valor conservador de partida, no calibrado con un dataset
+    # de evaluación del catálogo real; si en producción resulta
+    # demasiado estricto (descarta productos que sí deberían aparecer)
+    # o demasiado laxo, es la primera constante a ajustar, ya que toda
+    # la regla de relevancia vive en esta única línea.
+    UMBRAL_DISTANCIA_RELEVANTE: float = 0.45
 
     def __init__(
         self,
@@ -127,3 +139,16 @@ class EmbeddingProductoService:
             for resultado in resultados
             if resultado.distancia <= self.UMBRAL_DISTANCIA_RELEVANTE
         ]
+
+    def eliminar(self, producto_codigo: str) -> bool:
+        """
+        Elimina el embedding vigente de un producto (si existía).
+
+        Caso de uso complementario a `generar_y_guardar`: cuando un
+        Producto se borra en Django, su embedding en pgvector queda
+        huérfano si nadie lo limpia (ver `app.api.ia`, endpoint
+        `DELETE /api/ia/embeddings/{producto_codigo}`). Delega
+        directamente en el puerto de repositorio, mismo patrón que
+        `InventarioService.eliminar`.
+        """
+        return self._repositorio.eliminar(producto_codigo)
