@@ -6,7 +6,7 @@ interface Props extends LabelHTMLAttributes<HTMLLabelElement> {
 
 export function Label({ required = false, className = "", children, ...rest }: Props) {
   return (
-    <label className={`block text-sm font-medium text-ink ${className}`} {...rest}>
+    <label className={`block text-sm font-semibold text-ink ${className}`} {...rest}>
       {children}
       {required && <span className="text-danger"> *</span>}
     </label>

@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend de Lite Thinking 2026
 
-## Getting Started
+Next.js 16 (App Router) + React 19, consumiendo la API de Django
+(Empresa, Productos, Login) y la API de FastAPI (Inventario, PDF, correo,
+agente de IA). El detalle de arquitectura completa del proyecto está en
+el `README.md` de la raíz del repositorio; este documento cubre solo el
+frontend.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20 LTS (requerido por Next.js 16).
+- Los backends de Django y FastAPI corriendo, o al menos accesibles en
+  las URLs configuradas (ver más abajo).
+
+## Instalación y ejecución
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Esto levanta el servidor de desarrollo en `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Otros scripts disponibles:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | Qué hace |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con recarga en caliente. |
+| `npm run build` | Build de producción. Requiere salida de red hacia `fonts.googleapis.com` para descargar Sora e Inter vía `next/font/google`. |
+| `npm run start` | Sirve el build de producción ya generado. |
+| `npm run lint` | ESLint sobre todo el proyecto. |
 
-## Learn More
+### Variables de entorno (`frontend/.env.local`)
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Descripción |
+|---|---|
+| `NEXT_PUBLIC_DJANGO_API_URL` | URL base de la API de Django (por defecto `http://localhost:8000/api`). |
+| `NEXT_PUBLIC_FASTAPI_API_URL` | URL base de la API de FastAPI (por defecto `http://localhost:8001`). |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estructura: Atomic Design
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Los componentes de React están organizados en cuatro capas, cada una con
+su propio `README.md`:
 
-## Deploy on Vercel
+- **`components/atoms/`**: componentes indivisibles (`Button`, `Input`,
+  `Select`, `TextArea`, `Label`, `ErrorText`, `Badge`, `Spinner`). No
+  dependen de otros componentes del proyecto.
+- **`components/molecules/`**: combinaciones simples de átomos
+  (`FormField`, `Alert`, `Modal`, `ConfirmDialog`, `EmptyState`,
+  `PrecioRow`).
+- **`components/organisms/`**: bloques funcionales completos por vista
+  (`Navbar`, `Footer`, `LoginForm`, las tablas y los `FormModal` de
+  Empresa, Producto e Inventario, `EnviarCorreoModal`,
+  `BusquedaSemanticaProductos`).
+- **`components/templates/`**: estructura de página sin datos reales
+  (`PageShell`, `AuthGate`). Las rutas en `app/` las instancian con datos.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Cada capa solo puede depender de las capas anteriores en esta lista
+(`organisms` puede usar `molecules` y `atoms`, pero no al revés).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Rutas (`app/`)
+
+`/` (inicio), `/login`, `/empresas`, `/productos`, `/inventario`. Cada
+carpeta de ruta tiene su propio `README.md` describiendo el propósito de
+esa vista.
+
+### `lib/`
+
+- `lib/api/`: clientes REST hacia Django y FastAPI.
+- `lib/auth/`: `AuthContext` y decodificación del JWT.
+- `lib/types/`: tipos TypeScript compartidos entre componentes.
+- `lib/utils/`: utilidades varias (descarga de archivos PDF).
+
+## Sistema de diseño
+
+Los tokens visuales viven en `app/globals.css`, dentro de `:root` y del
+bloque `@theme inline` de Tailwind v4 (que convierte cada variable CSS en
+una clase utilitaria: `--color-primary` genera `bg-primary`,
+`text-primary`, `border-primary`, etc.). Ningún componente debe usar un
+valor hexadecimal, un radio o una sombra sueltos: siempre por nombre de
+token.
+
+### Color
+
+- **Neutros**: `bg`, `surface`, `surface-muted`, `surface-sunken`,
+  `border`, `border-strong`, `ink`, `ink-muted`. Forman la base tonal de
+  fondos, superficies y texto.
+- **`primary`** (+ `primary-hover`, `primary-ink`, `primary-soft`): color
+  de marca, usado en botones principales, enlaces activos y el fondo del
+  `Navbar`.
+- **`accent`** (+ `accent-hover`, `accent-ink`, `accent-soft`): color de
+  alto contraste reservado para estados activos y el anillo de foco por
+  teclado (`focus-visible`) en toda la interfaz.
+- **`danger`** (+ variantes) y **`success`** (+ variante `soft`): estados
+  de error/eliminación y de éxito respectivamente.
+
+### Radio y sombra
+
+Escala de tres pasos para ambos: `sm` / `md` / `lg`. Como guía general,
+`sm` es para controles compactos (botones, inputs), `md` para paneles
+anidados o secundarios, y `lg` para contenedores de primer nivel
+(tarjetas, tablas, modales).
+
+### Tipografía
+
+- **`font-display`** (Sora): títulos y encabezados. Solo están cargados
+  los pesos 600 y 700, así que todo uso de `font-display` debe ir
+  acompañado explícitamente de `font-semibold` o `font-bold`; sin eso, el
+  navegador cae al tipo de letra de respaldo en vez de mostrar Sora.
+- **`font-sans`** (Inter): texto de cuerpo, el valor por defecto de toda
+  la aplicación.
+- **`font-mono`**: códigos de producto, NIT, cifras y precios.
+
+## Notas de compatibilidad
+
+- `next/font/google` descarga los archivos de fuente durante el build.
+  En entornos sin salida de red hacia `fonts.googleapis.com`, `npm run
+  build` falla específicamente en ese paso; el resto del proyecto no se
+  ve afectado.

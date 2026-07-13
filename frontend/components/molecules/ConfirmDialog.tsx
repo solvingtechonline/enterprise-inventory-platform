@@ -23,7 +23,7 @@ export function ConfirmDialog({
   return (
     <Modal title={title} onClose={onCancel} widthClassName="max-w-sm">
       <p className="text-sm text-ink-muted">{description}</p>
-      <div className="mt-5 flex justify-end gap-2">
+      <div className="mt-5 flex justify-end gap-2 border-t border-border pt-4">
         <Button variante="secundario" tamano="sm" onClick={onCancel} disabled={isLoading}>
           Cancelar
         </Button>

@@ -61,7 +61,7 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
       {errorGeneral && <Alert tono="peligro">{errorGeneral}</Alert>}
 
       <FormField htmlFor="correo" label="Correo electrónico" required error={errores.correo}>
@@ -94,7 +94,7 @@ export function LoginForm() {
             aria-label={mostrarPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             className="absolute inset-y-0 right-0 flex items-center px-3 text-ink-muted
               hover:text-ink focus-visible:outline focus-visible:outline-2
-              focus-visible:outline-offset-2 focus-visible:outline-primary"
+              focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {mostrarPassword ? (
               <svg

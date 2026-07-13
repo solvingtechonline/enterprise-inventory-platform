@@ -69,7 +69,7 @@ export function Modal({ title, onClose, children, widthClassName = "max-w-lg" }:
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 px-4 py-10 animate-modal-overlay"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 px-4 py-10 backdrop-blur-sm animate-modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -78,18 +78,19 @@ export function Modal({ title, onClose, children, widthClassName = "max-w-lg" }:
       <div
         ref={panelRef}
         tabIndex={-1}
-        className={`w-full ${widthClassName} rounded-md border border-border bg-surface shadow-xl animate-modal-panel focus:outline-none`}
+        className={`w-full ${widthClassName} rounded-lg border border-border bg-surface shadow-lg animate-modal-panel focus:outline-none`}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 id="modal-title" className="font-display text-lg text-ink">
+          <h2 id="modal-title" className="font-display text-lg font-semibold text-ink">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="rounded-sm p-1 text-ink-muted hover:bg-surface-muted hover:text-ink"
+            className="rounded-sm p-1 text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             ✕
           </button>

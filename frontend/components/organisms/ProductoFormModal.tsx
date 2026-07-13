@@ -158,7 +158,10 @@ export function ProductoFormModal({
         </FormField>
 
         <FormField htmlFor="precios" label="Precios" required error={errores.precios}>
-          <div id="precios" className="space-y-2">
+          <div
+            id="precios"
+            className="space-y-2 rounded-md border border-border bg-surface-sunken p-3"
+          >
             {data.precios.map((precio, index) => (
               <PrecioRow
                 key={index}
@@ -175,7 +178,7 @@ export function ProductoFormModal({
           </div>
         </FormField>
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="mt-2 flex justify-end gap-2 border-t border-border pt-4">
           <Button type="button" variante="secundario" tamano="sm" onClick={onClose}>
             Cancelar
           </Button>

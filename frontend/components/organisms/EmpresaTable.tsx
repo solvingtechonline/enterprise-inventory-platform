@@ -11,7 +11,7 @@ interface Props {
 
 export function EmpresaTable({ empresas, puedeEditar, onEditar, onEliminar }: Props) {
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-surface">
+    <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-xs">
       <table className="w-full text-left text-sm">
         <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
           <tr>
@@ -24,7 +24,7 @@ export function EmpresaTable({ empresas, puedeEditar, onEditar, onEliminar }: Pr
         </thead>
         <tbody className="divide-y divide-border">
           {empresas.map((empresa) => (
-            <tr key={empresa.nit} className="hover:bg-surface-muted/60">
+            <tr key={empresa.nit} className="transition-colors hover:bg-surface-muted/60">
               <td className="px-4 py-3">
                 <Badge tono="neutro">{empresa.nit}</Badge>
               </td>
@@ -37,7 +37,12 @@ export function EmpresaTable({ empresas, puedeEditar, onEditar, onEliminar }: Pr
                     <Button variante="texto" tamano="sm" onClick={() => onEditar(empresa)}>
                       Editar
                     </Button>
-                    <Button variante="texto" tamano="sm" onClick={() => onEliminar(empresa)}>
+                    <Button
+                      variante="texto"
+                      tamano="sm"
+                      onClick={() => onEliminar(empresa)}
+                      className="!text-danger hover:!text-danger"
+                    >
                       Eliminar
                     </Button>
                   </div>

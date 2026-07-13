@@ -21,7 +21,7 @@ function formatearFecha(fecha: string | null): string {
 
 export function InventarioTable({ registros, productos, onEditar, onEliminar }: Props) {
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-surface">
+    <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-xs">
       <table className="w-full text-left text-sm">
         <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
           <tr>
@@ -33,7 +33,7 @@ export function InventarioTable({ registros, productos, onEditar, onEliminar }: 
         </thead>
         <tbody className="divide-y divide-border">
           {registros.map((registro) => (
-            <tr key={registro.id} className="hover:bg-surface-muted/60">
+            <tr key={registro.id} className="transition-colors hover:bg-surface-muted/60">
               <td className="px-4 py-3">
                 <Badge tono="neutro">{registro.producto_codigo}</Badge>
                 <span className="ml-2 text-ink">{nombreProducto(productos, registro.producto_codigo)}</span>
@@ -45,7 +45,12 @@ export function InventarioTable({ registros, productos, onEditar, onEliminar }: 
                   <Button variante="texto" tamano="sm" onClick={() => onEditar(registro)}>
                     Corregir cantidad
                   </Button>
-                  <Button variante="texto" tamano="sm" onClick={() => onEliminar(registro)}>
+                  <Button
+                    variante="texto"
+                    tamano="sm"
+                    onClick={() => onEliminar(registro)}
+                    className="!text-danger hover:!text-danger"
+                  >
                     Eliminar
                   </Button>
                 </div>
