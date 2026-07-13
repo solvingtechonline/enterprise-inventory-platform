@@ -61,7 +61,7 @@ export function EnviarCorreoModal({ empresaNombre, onClose, onEnviar }: Props) {
               correctamente.
             </p>
           )}
-          <div className="flex justify-end">
+          <div className="flex justify-end border-t border-border pt-4">
             <Button tamano="sm" onClick={onClose}>
               Cerrar
             </Button>
@@ -87,7 +87,7 @@ export function EnviarCorreoModal({ empresaNombre, onClose, onEnviar }: Props) {
             />
           </FormField>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="mt-2 flex justify-end gap-2 border-t border-border pt-4">
             <Button type="button" variante="secundario" tamano="sm" onClick={onClose}>
               Cancelar
             </Button>

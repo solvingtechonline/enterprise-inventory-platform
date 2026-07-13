@@ -16,7 +16,7 @@ const clasesPorTono: Record<Tono, string> = {
 export function Badge({ tono = "neutro", children, className = "" }: Props) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium font-mono tracking-wide ${clasesPorTono[tono]} ${className}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold font-mono tracking-wide ${clasesPorTono[tono]} ${className}`}
     >
       {children}
     </span>

@@ -16,7 +16,7 @@ function nombreEmpresa(empresas: Empresa[], nit: string): string {
 
 export function ProductoTable({ productos, empresas, onEditar, onEliminar }: Props) {
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-surface">
+    <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-xs">
       <table className="w-full text-left text-sm">
         <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
           <tr>
@@ -29,7 +29,7 @@ export function ProductoTable({ productos, empresas, onEditar, onEliminar }: Pro
         </thead>
         <tbody className="divide-y divide-border">
           {productos.map((producto) => (
-            <tr key={producto.id} className="align-top hover:bg-surface-muted/60">
+            <tr key={producto.id} className="align-top transition-colors hover:bg-surface-muted/60">
               <td className="px-4 py-3">
                 <Badge tono="neutro">{producto.codigo}</Badge>
               </td>
@@ -57,7 +57,12 @@ export function ProductoTable({ productos, empresas, onEditar, onEliminar }: Pro
                   <Button variante="texto" tamano="sm" onClick={() => onEditar(producto)}>
                     Editar
                   </Button>
-                  <Button variante="texto" tamano="sm" onClick={() => onEliminar(producto)}>
+                  <Button
+                    variante="texto"
+                    tamano="sm"
+                    onClick={() => onEliminar(producto)}
+                    className="!text-danger hover:!text-danger"
+                  >
                     Eliminar
                   </Button>
                 </div>

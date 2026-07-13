@@ -119,7 +119,7 @@ export function InventarioFormModal({
           />
         </FormField>
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="mt-2 flex justify-end gap-2 border-t border-border pt-4">
           <Button type="button" variante="secundario" tamano="sm" onClick={onClose}>
             Cancelar
           </Button>

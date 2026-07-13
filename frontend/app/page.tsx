@@ -15,6 +15,63 @@ interface Acceso {
   disponible: boolean;
 }
 
+/*
+ * Ícono representativo por tarjeta, mapeado por href en vez de agregarse
+ * al array `accesos` para no tocar su forma de datos ni la lógica de
+ * `disponible`. SVG inline, sin librería externa.
+ */
+const iconosPorHref: Record<string, React.ReactNode> = {
+  "/empresas": (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16" />
+      <path d="M14 10h5a1 1 0 0 1 1 1v10" />
+      <path d="M4 21h16" />
+      <path d="M8 8h1M11 8h1M8 12h1M11 12h1M8 16h1M11 16h1" />
+    </svg>
+  ),
+  "/productos": (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path d="M21 8 12 3 3 8v8l9 5 9-5Z" />
+      <path d="M3 8l9 5 9-5" />
+      <path d="M12 13v8" />
+    </svg>
+  ),
+  "/inventario": (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path d="M3 10 12 4l9 6" />
+      <path d="M4 10v10h16V10" />
+      <path d="M9 20v-6h6v6" />
+    </svg>
+  ),
+};
+
 export default function Home() {
   const { isAdmin, isReady } = useAuth();
   const [totalEmpresas, setTotalEmpresas] = useState<number | null>(null);
@@ -60,13 +117,17 @@ export default function Home() {
           <Link
             key={acceso.href}
             href={acceso.disponible ? acceso.href : "/login"}
-            className="group rounded-md border border-border bg-surface p-5 transition-shadow hover:shadow-md"
+            className="group rounded-lg border border-border bg-surface p-5 shadow-xs
+              transition-all hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md"
           >
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-lg text-ink">{acceso.titulo}</h2>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-primary-soft text-primary">
+                {iconosPorHref[acceso.href]}
+              </span>
               {!acceso.disponible && <Badge tono="neutro">requiere login</Badge>}
             </div>
-            <p className="text-sm text-ink-muted">{acceso.descripcion}</p>
+            <h2 className="font-display text-lg font-semibold text-ink">{acceso.titulo}</h2>
+            <p className="mt-1 text-sm text-ink-muted">{acceso.descripcion}</p>
           </Link>
         ))}
       </div>
