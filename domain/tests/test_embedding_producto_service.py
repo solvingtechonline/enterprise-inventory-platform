@@ -109,7 +109,7 @@ def test_generar_y_guardar_propaga_error_del_proveedor_de_ia():
 
 def test_buscar_semanticamente_devuelve_solo_los_candidatos_relevantes():
     repositorio = _RepositorioEmbeddingFalso()
-    for codigo, distancia in (("P-001", 0.10), ("P-002", 0.50), ("P-003", 0.95)):
+    for codigo, distancia in (("P-001", 0.10), ("P-002", 0.30), ("P-003", 0.95)):
         repositorio.por_codigo[codigo] = EmbeddingProducto(
             id=None, producto_codigo=codigo, texto_fuente=f"texto {codigo}", vector=[0.1]
         )
@@ -119,7 +119,7 @@ def test_buscar_semanticamente_devuelve_solo_los_candidatos_relevantes():
 
     resultados = servicio.buscar_semanticamente("laptop para diseño", limite=5)
 
-    # P-003 (distancia 0.95) queda fuera: supera UMBRAL_DISTANCIA_RELEVANTE (0.8).
+    # P-003 (distancia 0.95) queda fuera: supera UMBRAL_DISTANCIA_RELEVANTE (0.45).
     codigos = [r.producto_codigo for r in resultados]
     assert codigos == ["P-001", "P-002"]
     assert resultados[0].distancia == 0.10

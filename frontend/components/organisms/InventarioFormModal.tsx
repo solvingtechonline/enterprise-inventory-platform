@@ -12,6 +12,12 @@ import { ApiError } from "../../lib/api/http";
 import type { InventarioRegistro } from "../../lib/types/inventario";
 import type { Producto } from "../../lib/types/producto";
 
+// `Inventario.cantidad` es un `Integer` de SQLAlchemy sin tope propio en el
+// modelo (ver backend-fastapi/app/models/inventario.py); el techo real es
+// el de `Integer` en Postgres. Se valida acá para no dejar que el
+// formulario envíe un valor que el backend rechazaría igual.
+const CANTIDAD_MAXIMA = 2147483647;
+
 interface Props {
   empresaNombre: string;
   productos: Producto[];
@@ -46,6 +52,8 @@ export function InventarioFormModal({
     if (Number.isNaN(cantidad)) erroresValidacion.cantidad = "Ingresa una cantidad.";
     else if (esEdicion && cantidad < 0) erroresValidacion.cantidad = "La cantidad no puede ser negativa.";
     else if (!esEdicion && cantidad <= 0) erroresValidacion.cantidad = "La cantidad debe ser mayor a 0.";
+    else if (cantidad > CANTIDAD_MAXIMA)
+      erroresValidacion.cantidad = `La cantidad no puede superar ${CANTIDAD_MAXIMA.toLocaleString("es-CO")}.`;
     setErrores(erroresValidacion);
     if (Object.keys(erroresValidacion).length > 0) return;
 
@@ -113,6 +121,7 @@ export function InventarioFormModal({
             mono
             type="number"
             min={esEdicion ? 0 : 1}
+            max={CANTIDAD_MAXIMA}
             value={Number.isNaN(cantidad) ? "" : cantidad}
             onChange={(event) => setCantidad(event.target.valueAsNumber)}
             invalid={Boolean(errores.cantidad)}

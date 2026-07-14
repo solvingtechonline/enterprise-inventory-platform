@@ -14,10 +14,27 @@ import { ApiError } from "../../lib/api/http";
 import type { Empresa } from "../../lib/types/empresa";
 import type { Precio, Producto, ProductoInput } from "../../lib/types/producto";
 
+// Alineados con los límites reales del backend: `Producto.codigo` y
+// `Producto.nombre` son `CharField` de Django (max_length=50 y 200
+// respectivamente, ver backend-django/apps/productos/models.py), y el
+// valor de cada precio es un `DecimalField(max_digits=14, decimal_places=2)`
+// (backend-django/apps/productos/models.py, PrecioProducto), cuyo entero
+// más grande representable es 12 dígitos.
+// `caracteristicas` es un `TextField` sin tope técnico en la base de
+// datos, pero al ser también la fuente del embedding semántico (ver
+// EmbeddingProductoService), un texto libre "ilimitado" no es buena
+// práctica: 800 caracteres es un tope de negocio/UX razonable, no una
+// restricción del backend.
+const CODIGO_MAX_LENGTH = 50;
+const NOMBRE_MAX_LENGTH = 200;
+const CARACTERISTICAS_MAX_LENGTH = 800;
+const PRECIO_VALOR_MAXIMO = 999999999999.99;
+
 interface Errores {
   codigo?: string;
   nombre?: string;
   empresa?: string;
+  caracteristicas?: string;
   precios?: string;
 }
 
@@ -25,8 +42,17 @@ function validar(data: ProductoInput): Errores {
   const errores: Errores = {};
 
   if (!data.codigo.trim()) errores.codigo = "El código es obligatorio.";
+  else if (data.codigo.trim().length > CODIGO_MAX_LENGTH)
+    errores.codigo = `El código no puede superar ${CODIGO_MAX_LENGTH} caracteres.`;
+
   if (!data.nombre.trim()) errores.nombre = "El nombre es obligatorio.";
+  else if (data.nombre.trim().length > NOMBRE_MAX_LENGTH)
+    errores.nombre = `El nombre no puede superar ${NOMBRE_MAX_LENGTH} caracteres.`;
+
   if (!data.empresa) errores.empresa = "Selecciona una empresa.";
+
+  if (data.caracteristicas.length > CARACTERISTICAS_MAX_LENGTH)
+    errores.caracteristicas = `Las características no pueden superar ${CARACTERISTICAS_MAX_LENGTH} caracteres.`;
 
   if (data.precios.length === 0) {
     errores.precios = "Agrega al menos un precio.";
@@ -34,8 +60,10 @@ function validar(data: ProductoInput): Errores {
     const monedas = data.precios.map((p) => p.moneda);
     const hayDuplicados = new Set(monedas).size !== monedas.length;
     const hayInvalidos = data.precios.some((p) => !p.valor || p.valor <= 0 || Number.isNaN(p.valor));
+    const hayExcesivos = data.precios.some((p) => p.valor > PRECIO_VALOR_MAXIMO);
     if (hayDuplicados) errores.precios = "No repitas la misma moneda en más de un precio.";
     else if (hayInvalidos) errores.precios = "Cada precio debe ser mayor a 0.";
+    else if (hayExcesivos) errores.precios = `Ningún precio puede superar ${PRECIO_VALOR_MAXIMO.toLocaleString("es-CO")}.`;
   }
 
   return errores;
@@ -116,6 +144,7 @@ export function ProductoFormModal({
             <Input
               id="codigo"
               mono
+              maxLength={CODIGO_MAX_LENGTH}
               disabled={esEdicion}
               value={data.codigo}
               onChange={(event) => setData({ ...data, codigo: event.target.value })}
@@ -139,21 +168,35 @@ export function ProductoFormModal({
           </FormField>
         </div>
 
-        <FormField htmlFor="nombre" label="Nombre" required error={errores.nombre}>
+        <FormField
+          htmlFor="nombre"
+          label="Nombre"
+          required
+          error={errores.nombre}
+          hint={`${data.nombre.length}/${NOMBRE_MAX_LENGTH} caracteres`}
+        >
           <Input
             id="nombre"
+            maxLength={NOMBRE_MAX_LENGTH}
             value={data.nombre}
             onChange={(event) => setData({ ...data, nombre: event.target.value })}
             invalid={Boolean(errores.nombre)}
           />
         </FormField>
 
-        <FormField htmlFor="caracteristicas" label="Características">
+        <FormField
+          htmlFor="caracteristicas"
+          label="Características"
+          error={errores.caracteristicas}
+          hint={`${data.caracteristicas.length}/${CARACTERISTICAS_MAX_LENGTH} caracteres`}
+        >
           <TextArea
             id="caracteristicas"
             rows={3}
+            maxLength={CARACTERISTICAS_MAX_LENGTH}
             value={data.caracteristicas}
             onChange={(event) => setData({ ...data, caracteristicas: event.target.value })}
+            invalid={Boolean(errores.caracteristicas)}
           />
         </FormField>
 
@@ -168,6 +211,7 @@ export function ProductoFormModal({
                 precio={precio}
                 index={index}
                 puedeQuitar={data.precios.length > 1}
+                max={PRECIO_VALOR_MAXIMO}
                 onChange={actualizarPrecio}
                 onQuitar={quitarPrecio}
               />

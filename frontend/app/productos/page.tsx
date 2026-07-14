@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "../../components/atoms/Button";
+import { Badge } from "../../components/atoms/Badge";
 import { Select } from "../../components/atoms/Select";
 import { Spinner } from "../../components/atoms/Spinner";
 import { Alert } from "../../components/molecules/Alert";
 import { ConfirmDialog } from "../../components/molecules/ConfirmDialog";
+import { DetailModal } from "../../components/molecules/DetailModal";
 import { EmptyState } from "../../components/molecules/EmptyState";
 import { BusquedaSemanticaProductos } from "../../components/organisms/BusquedaSemanticaProductos";
 import { ProductoFormModal } from "../../components/organisms/ProductoFormModal";
@@ -37,6 +39,7 @@ function ProductosContenido() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [productoEnEdicion, setProductoEnEdicion] = useState<Producto | undefined>(undefined);
   const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);
+  const [productoEnDetalle, setProductoEnDetalle] = useState<Producto | null>(null);
   const [isEliminando, setIsEliminando] = useState(false);
   const [avisoExito, setAvisoExito] = useState<string | null>(null);
 
@@ -167,6 +170,7 @@ function ProductosContenido() {
         <ProductoTable
           productos={productos}
           empresas={empresas}
+          onVerDetalle={setProductoEnDetalle}
           onEditar={abrirEdicion}
           onEliminar={setProductoAEliminar}
         />
@@ -189,6 +193,36 @@ function ProductosContenido() {
           isLoading={isEliminando}
           onConfirm={confirmarEliminacion}
           onCancel={() => setProductoAEliminar(null)}
+        />
+      )}
+
+      {productoEnDetalle && (
+        <DetailModal
+          title={`Producto: ${productoEnDetalle.nombre}`}
+          onClose={() => setProductoEnDetalle(null)}
+          fields={[
+            { label: "Código", value: <Badge tono="neutro">{productoEnDetalle.codigo}</Badge> },
+            { label: "Nombre", value: productoEnDetalle.nombre },
+            {
+              label: "Empresa",
+              value:
+                empresas.find((empresa) => empresa.nit === productoEnDetalle.empresa)?.nombre ??
+                productoEnDetalle.empresa,
+            },
+            { label: "Características", value: productoEnDetalle.caracteristicas || undefined },
+            {
+              label: "Precios",
+              value: (
+                <div className="flex flex-wrap gap-2">
+                  {productoEnDetalle.precios.map((precio) => (
+                    <span key={precio.moneda} className="font-mono text-sm">
+                      {precio.moneda} {precio.valor.toLocaleString("es-CO", { minimumFractionDigits: 2 })}
+                    </span>
+                  ))}
+                </div>
+              ),
+            },
+          ]}
         />
       )}
     </>
