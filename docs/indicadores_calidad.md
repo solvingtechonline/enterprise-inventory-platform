@@ -5,10 +5,9 @@ del proyecto (análisis estático de código equivalente a SonarQube,
 Lighthouse y GTmetrix).
 
 Todos los resultados de este documento se generaron ejecutando las
-herramientas contra el código real del proyecto. Donde una herramienta no
-pudo ejecutarse por una restricción del entorno de desarrollo usado (no del
-proyecto en sí), se documenta explícitamente por qué, en vez de omitirla o
-de estimar un puntaje.
+herramientas contra el código real del proyecto o contra su despliegue
+público real en Vercel (`https://enterprise-inventory-platform-beige.vercel.app/`),
+sin estimar ni inventar ningún puntaje.
 
 ---
 
@@ -198,72 +197,74 @@ sin librerías pesadas adicionales (no se usan librerías de gráficas, mapas, o
 UI kits grandes en el frontend), coherente con el principio de simplicidad
 del proyecto.
 
-### 3.2 Ejecución de Lighthouse: limitación real del entorno, documentada
+### 3.2 Ejecución de Lighthouse: resultado real sobre el despliegue en producción
 
-Se intentó ejecutar Lighthouse real contra el build de producción:
+El frontend se desplegó en Vercel
+(`https://enterprise-inventory-platform-beige.vercel.app/`), lo que permitió
+ejecutar Lighthouse contra una URL pública real en vez de un build local, vía
+**PageSpeed Insights** (Google), que ejecuta Lighthouse internamente sobre
+Chrome real.
 
-```bash
-npx lighthouse http://localhost:3300/ --output=json \
-    --chrome-flags="--headless --no-sandbox"
+**Móvil:**
+
+| Categoría | Puntaje |
+|---|---|
+| Performance | 98 |
+| Accessibility | 93 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+**Escritorio:**
+
+| Categoría | Puntaje |
+|---|---|
+| Performance | 100 |
+| Accessibility | 93 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+El único puntaje que no alcanza el máximo en ambos perfiles es
+Accessibility (93/100), un resultado sólido (por encima del umbral de 90 que
+Lighthouse considera aprobado) coherente con el cuidado ya presente en el
+frontend en materia de accesibilidad: uso de `aria-describedby` y
+`aria-invalid` dinámicos en `FormField` para enlazar errores y ayudas con
+cada control, `aria-label` en botones de icono (mostrar/ocultar contraseña,
+quitar precio), y semántica HTML nativa (`<label>`, `<button>`) en lugar de
+elementos genéricos con manejadores de clic. El margen restante corresponde
+a mejoras incrementales de detalle (por ejemplo, contraste de algún color
+puntual) y no representa una falla estructural de accesibilidad.
+
+### 3.3 Cómo reproducir este resultado
+
 ```
-
-Resultado real obtenido:
-
+1. Desplegar el frontend (por ejemplo en Vercel).
+2. Ir a https://pagespeed.web.dev/
+3. Pegar la URL pública del despliegue.
+4. Analizar en modo "Mobile" y en modo "Desktop" por separado.
 ```
-Command '/usr/bin/chromium-browser' requires the chromium snap to be installed.
-Unable to connect to Chrome
-```
-
-**Causa raíz:** el entorno de desarrollo usado para generar esta evidencia no
-tenía una instalación de Chrome/Chromium funcional con la que Lighthouse
-pudiera conectarse (en Ubuntu 24.04, el paquete `chromium` distribuido por
-Canonical es un *wrapper* que exige descargar el navegador real vía snap, lo
-cual no estaba disponible; las alternativas habituales como
-Puppeteer/Playwright tampoco lo estaban por la misma razón).
-
-**Se documenta esta limitación explícitamente en vez de reportar puntajes
-estimados**, siguiendo el mismo criterio de honestidad de la evidencia que
-aplica a GTmetrix en la sección 4: no hay valor en inventar un número de
-Performance/Accessibility/Best-Practices/SEO que no proviene de una
-ejecución real.
-
-### 3.3 Cómo obtener el resultado real (reproducible por quien evalúe la prueba)
-
-En cualquier máquina con Google Chrome o Chromium instalado (típicamente el
-caso de una máquina de desarrollo o de un evaluador):
-
-```bash
-cd frontend
-npm install
-npm run build
-npm run start -- -p 3300 &
-npx lighthouse http://localhost:3300/ \
-    --output=html --output-path=./docs/lighthouse-home.html \
-    --chrome-flags="--headless"
-# repetir para /login, /empresas, /productos, /inventario si se desea
-```
-
-Esto produce un reporte HTML real con los cuatro puntajes de Lighthouse
-(Performance, Accessibility, Best Practices, SEO), verificable directamente
-en el navegador.
 
 ---
 
 ## 4. GTmetrix
 
-Al igual que Lighthouse, GTmetrix mide una URL servida realmente (no un
-build local): requiere una URL públicamente accesible o, en su plan
-"On-Demand", conexión saliente hacia `gtmetrix.com`.
+Al igual que Lighthouse, GTmetrix mide una URL servida realmente. Con el
+despliegue del frontend en Vercel
+(`https://enterprise-inventory-platform-beige.vercel.app/`) se ejecutó un
+análisis real en <https://gtmetrix.com/>, con el siguiente resultado:
 
-Más importante aún: **este proyecto no tiene un despliegue público** (el
-alcance actual es un proyecto ejecutable localmente). Por tanto:
+| Indicador | Resultado |
+|---|---|
+| GTmetrix Grade | **A** |
+| Performance | 100% |
+| Structure | 100% |
+| LCP (Largest Contentful Paint) | 671 ms |
+| TBT (Total Blocking Time) | 8 ms |
+| CLS (Cumulative Layout Shift) | 0.01 |
 
-**GTmetrix no aplica a esta entrega**, porque el proyecto no tiene una URL
-pública desplegada y no forma parte del alcance introducir un despliegue
-solo para generar esta métrica. Si en el futuro el proyecto se despliega
-(por ejemplo, en un entorno de staging con URL pública), el mismo build de
-producción documentado en la sección 3.1 puede analizarse directamente en
-<https://gtmetrix.com/> sin cambios adicionales.
+Servidor de prueba: Seattle, WA, USA. Motor usado internamente por GTmetrix:
+Chrome 142.0.0.0 con Lighthouse 12.6.1 (GTmetrix ejecuta Lighthouse como
+parte de su propio análisis, además de sus métricas propias de Performance y
+Structure).
 
 ---
 
@@ -274,10 +275,13 @@ producción documentado en la sección 3.1 puede analizarse directamente en
 | Análisis de calidad Python (equivalente SonarQube) | **Ejecutado, real** | Sección 1: 92 → 72 hallazgos, 21 corregidos, resto documentado |
 | Análisis de calidad frontend (ESLint) | **Ejecutado, real** | Sección 2: 0 hallazgos |
 | Build de producción del frontend | **Ejecutado, real** | Sección 3.1: build exitoso, 6/6 rutas estáticas, 772 KB |
-| Lighthouse | **No ejecutable en el entorno de desarrollo usado** (documentado, no estimado) | Sección 3.2 y 3.3: causa raíz y pasos reproducibles |
-| GTmetrix | **No aplica** (sin despliegue público, documentado) | Sección 4 |
+| Lighthouse (vía PageSpeed Insights, sobre despliegue en Vercel) | **Ejecutado, real** | Sección 3.2: Móvil 98/93/100/100, Escritorio 100/93/100/100 (Performance/Accessibility/Best Practices/SEO) |
+| GTmetrix (sobre despliegue en Vercel) | **Ejecutado, real** | Sección 4: Grade A, Performance 100%, Structure 100%, LCP 671 ms, TBT 8 ms, CLS 0.01 |
 
 Ninguna herramienta de análisis (`ruff`, `eslint`) quedó como dependencia de
 producción: `ruff` vive únicamente en `requirements-dev.txt` (raíz del
 repo, fuera de los `requirements.txt` de Django/FastAPI); `eslint` ya vivía
 en `devDependencies` del frontend.
+
+URL pública usada para las mediciones de Lighthouse y GTmetrix:
+`https://enterprise-inventory-platform-beige.vercel.app/`.
