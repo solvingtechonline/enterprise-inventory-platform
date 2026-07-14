@@ -7,11 +7,13 @@ interface Props {
   precio: Precio;
   index: number;
   puedeQuitar: boolean;
+  /** Valor máximo aceptado (ver PRECIO_VALOR_MAXIMO en ProductoFormModal, derivado del DecimalField del backend). */
+  max?: number;
   onChange: (index: number, precio: Precio) => void;
   onQuitar: (index: number) => void;
 }
 
-export function PrecioRow({ precio, index, puedeQuitar, onChange, onQuitar }: Props) {
+export function PrecioRow({ precio, index, puedeQuitar, max, onChange, onQuitar }: Props) {
   return (
     <div className="flex items-start gap-2">
       <div className="w-44">
@@ -35,6 +37,7 @@ export function PrecioRow({ precio, index, puedeQuitar, onChange, onQuitar }: Pr
           mono
           type="number"
           min="0"
+          max={max}
           step="0.01"
           placeholder="0.00"
           value={Number.isNaN(precio.valor) ? "" : precio.valor}

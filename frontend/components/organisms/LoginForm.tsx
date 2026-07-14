@@ -10,14 +10,26 @@ import { Alert } from "../molecules/Alert";
 import { useAuth } from "../../lib/auth/AuthContext";
 import { ApiError } from "../../lib/api/http";
 
+// 254 es el máximo de un correo válido según RFC 5321, el mismo que
+// aplica Django por defecto en `EmailField` (ver Usuario.correo en
+// backend-django/apps/autenticacion/models.py).
+const CORREO_MAX_LENGTH = 254;
+// La contraseña no tiene un tope de negocio propio (no hay formulario de
+// registro en este frontend, solo login), pero aceptar cadenas
+// arbitrariamente largas en un campo de contraseña no es buena práctica
+// (costo de hashing/abuso). 128 es un techo defensivo estándar.
+const PASSWORD_MAX_LENGTH = 128;
+
 function validarCorreo(correo: string): string | undefined {
   if (!correo.trim()) return "El correo es obligatorio.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return "Ingresa un correo válido.";
+  if (correo.trim().length > CORREO_MAX_LENGTH) return `El correo no puede superar ${CORREO_MAX_LENGTH} caracteres.`;
   return undefined;
 }
 
 function validarPassword(password: string): string | undefined {
   if (!password) return "La contraseña es obligatoria.";
+  if (password.length > PASSWORD_MAX_LENGTH) return `La contraseña no puede superar ${PASSWORD_MAX_LENGTH} caracteres.`;
   return undefined;
 }
 
@@ -69,6 +81,7 @@ export function LoginForm() {
           id="correo"
           type="email"
           autoComplete="username"
+          maxLength={CORREO_MAX_LENGTH}
           value={correo}
           onChange={(event) => setCorreo(event.target.value)}
           invalid={Boolean(errores.correo)}
@@ -82,6 +95,7 @@ export function LoginForm() {
             id="password"
             type={mostrarPassword ? "text" : "password"}
             autoComplete="current-password"
+            maxLength={PASSWORD_MAX_LENGTH}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             invalid={Boolean(errores.password)}

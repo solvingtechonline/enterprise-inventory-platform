@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "../../components/atoms/Button";
+import { Badge } from "../../components/atoms/Badge";
 import { Spinner } from "../../components/atoms/Spinner";
 import { Alert } from "../../components/molecules/Alert";
 import { ConfirmDialog } from "../../components/molecules/ConfirmDialog";
+import { DetailModal } from "../../components/molecules/DetailModal";
 import { EmptyState } from "../../components/molecules/EmptyState";
 import { EmpresaFormModal } from "../../components/organisms/EmpresaFormModal";
 import { EmpresaTable } from "../../components/organisms/EmpresaTable";
@@ -30,6 +32,7 @@ export default function EmpresasPage() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [empresaEnEdicion, setEmpresaEnEdicion] = useState<Empresa | undefined>(undefined);
   const [empresaAEliminar, setEmpresaAEliminar] = useState<Empresa | null>(null);
+  const [empresaEnDetalle, setEmpresaEnDetalle] = useState<Empresa | null>(null);
   const [isEliminando, setIsEliminando] = useState(false);
   const [avisoExito, setAvisoExito] = useState<string | null>(null);
 
@@ -150,6 +153,7 @@ export default function EmpresasPage() {
         <EmpresaTable
           empresas={empresas}
           puedeEditar={isAdmin}
+          onVerDetalle={setEmpresaEnDetalle}
           onEditar={abrirEdicion}
           onEliminar={setEmpresaAEliminar}
         />
@@ -170,6 +174,19 @@ export default function EmpresasPage() {
           isLoading={isEliminando}
           onConfirm={confirmarEliminacion}
           onCancel={() => setEmpresaAEliminar(null)}
+        />
+      )}
+
+      {empresaEnDetalle && (
+        <DetailModal
+          title={`Empresa: ${empresaEnDetalle.nombre}`}
+          onClose={() => setEmpresaEnDetalle(null)}
+          fields={[
+            { label: "NIT", value: <Badge tono="neutro">{empresaEnDetalle.nit}</Badge> },
+            { label: "Nombre", value: empresaEnDetalle.nombre },
+            { label: "Dirección", value: empresaEnDetalle.direccion },
+            { label: "Teléfono", value: empresaEnDetalle.telefono },
+          ]}
         />
       )}
     </PageShell>

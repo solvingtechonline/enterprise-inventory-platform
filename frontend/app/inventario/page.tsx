@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "../../components/atoms/Button";
+import { Badge } from "../../components/atoms/Badge";
 import { Select } from "../../components/atoms/Select";
 import { Spinner } from "../../components/atoms/Spinner";
 import { Alert } from "../../components/molecules/Alert";
 import { ConfirmDialog } from "../../components/molecules/ConfirmDialog";
+import { DetailModal } from "../../components/molecules/DetailModal";
 import { EmptyState } from "../../components/molecules/EmptyState";
 import { InventarioFormModal } from "../../components/organisms/InventarioFormModal";
 import { InventarioTable } from "../../components/organisms/InventarioTable";
@@ -30,6 +32,15 @@ import type { Empresa } from "../../lib/types/empresa";
 import type { InventarioRegistro } from "../../lib/types/inventario";
 import type { Producto } from "../../lib/types/producto";
 
+function formatearFecha(fecha: string | null): string {
+  if (!fecha) return "-";
+  return new Date(fecha).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function nombreProducto(productos: Producto[], codigo: string): string {
+  return productos.find((producto) => producto.codigo === codigo)?.nombre ?? "-";
+}
+
 function InventarioContenido() {
   const { token } = useAuth();
 
@@ -45,6 +56,7 @@ function InventarioContenido() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [registroEnEdicion, setRegistroEnEdicion] = useState<InventarioRegistro | undefined>(undefined);
   const [registroAEliminar, setRegistroAEliminar] = useState<InventarioRegistro | null>(null);
+  const [registroEnDetalle, setRegistroEnDetalle] = useState<InventarioRegistro | null>(null);
   const [isEliminando, setIsEliminando] = useState(false);
 
   const [isDescargandoPdf, setIsDescargandoPdf] = useState(false);
@@ -240,6 +252,7 @@ function InventarioContenido() {
         <InventarioTable
           registros={registros}
           productos={productos}
+          onVerDetalle={setRegistroEnDetalle}
           onEditar={abrirEdicion}
           onEliminar={setRegistroAEliminar}
         />
@@ -270,6 +283,27 @@ function InventarioContenido() {
           empresaNombre={empresaActual.nombre}
           onClose={() => setModalCorreoAbierto(false)}
           onEnviar={handleEnviarCorreo}
+        />
+      )}
+
+      {registroEnDetalle && (
+        <DetailModal
+          title={`Registro: ${nombreProducto(productos, registroEnDetalle.producto_codigo)}`}
+          onClose={() => setRegistroEnDetalle(null)}
+          fields={[
+            {
+              label: "Producto",
+              value: (
+                <span className="flex items-center gap-2">
+                  <Badge tono="neutro">{registroEnDetalle.producto_codigo}</Badge>
+                  {nombreProducto(productos, registroEnDetalle.producto_codigo)}
+                </span>
+              ),
+            },
+            { label: "Empresa", value: empresaActual?.nombre },
+            { label: "Cantidad", value: registroEnDetalle.cantidad },
+            { label: "Actualizado", value: formatearFecha(registroEnDetalle.actualizado_en) },
+          ]}
         />
       )}
     </>

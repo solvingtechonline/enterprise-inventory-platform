@@ -13,6 +13,16 @@ import type { Empresa, EmpresaInput } from "../../lib/types/empresa";
 const REGEX_NIT = /^\d{5,15}(-\d)?$/;
 const REGEX_TELEFONO = /^\+?\d{7,15}$/;
 
+// Alineados con los límites reales del backend (Django `CharField`), para
+// no inventar topes arbitrarios: `Empresa.nombre` es max_length=200 y
+// `Empresa.direccion` es max_length=255 (ver backend-django/apps/empresas/models.py).
+// `nit` y `telefono` ya quedan acotados por sus regex (16 caracteres como
+// máximo válido en ambos casos), así que no necesitan un tope aparte.
+const NIT_MAX_LENGTH = 16;
+const TELEFONO_MAX_LENGTH = 16;
+const NOMBRE_MAX_LENGTH = 200;
+const DIRECCION_MAX_LENGTH = 255;
+
 type Errores = Partial<Record<keyof EmpresaInput, string>>;
 
 function validar(data: EmpresaInput, esEdicion: boolean): Errores {
@@ -25,7 +35,12 @@ function validar(data: EmpresaInput, esEdicion: boolean): Errores {
   }
 
   if (!data.nombre.trim()) errores.nombre = "El nombre es obligatorio.";
+  else if (data.nombre.trim().length > NOMBRE_MAX_LENGTH)
+    errores.nombre = `El nombre no puede superar ${NOMBRE_MAX_LENGTH} caracteres.`;
+
   if (!data.direccion.trim()) errores.direccion = "La dirección es obligatoria.";
+  else if (data.direccion.trim().length > DIRECCION_MAX_LENGTH)
+    errores.direccion = `La dirección no puede superar ${DIRECCION_MAX_LENGTH} caracteres.`;
 
   if (!data.telefono.trim()) errores.telefono = "El teléfono es obligatorio.";
   else if (!REGEX_TELEFONO.test(data.telefono.trim()))
@@ -84,6 +99,7 @@ export function EmpresaFormModal({ empresaExistente, onClose, onSubmit }: Props)
           <Input
             id="nit"
             mono
+            maxLength={NIT_MAX_LENGTH}
             value={data.nit}
             disabled={esEdicion}
             onChange={(event) => setData({ ...data, nit: event.target.value })}
@@ -92,18 +108,32 @@ export function EmpresaFormModal({ empresaExistente, onClose, onSubmit }: Props)
           />
         </FormField>
 
-        <FormField htmlFor="nombre" label="Nombre" required error={errores.nombre}>
+        <FormField
+          htmlFor="nombre"
+          label="Nombre"
+          required
+          error={errores.nombre}
+          hint={`${data.nombre.length}/${NOMBRE_MAX_LENGTH} caracteres`}
+        >
           <Input
             id="nombre"
+            maxLength={NOMBRE_MAX_LENGTH}
             value={data.nombre}
             onChange={(event) => setData({ ...data, nombre: event.target.value })}
             invalid={Boolean(errores.nombre)}
           />
         </FormField>
 
-        <FormField htmlFor="direccion" label="Dirección" required error={errores.direccion}>
+        <FormField
+          htmlFor="direccion"
+          label="Dirección"
+          required
+          error={errores.direccion}
+          hint={`${data.direccion.length}/${DIRECCION_MAX_LENGTH} caracteres`}
+        >
           <Input
             id="direccion"
+            maxLength={DIRECCION_MAX_LENGTH}
             value={data.direccion}
             onChange={(event) => setData({ ...data, direccion: event.target.value })}
             invalid={Boolean(errores.direccion)}
@@ -114,6 +144,7 @@ export function EmpresaFormModal({ empresaExistente, onClose, onSubmit }: Props)
           <Input
             id="telefono"
             mono
+            maxLength={TELEFONO_MAX_LENGTH}
             value={data.telefono}
             onChange={(event) => setData({ ...data, telefono: event.target.value })}
             invalid={Boolean(errores.telefono)}

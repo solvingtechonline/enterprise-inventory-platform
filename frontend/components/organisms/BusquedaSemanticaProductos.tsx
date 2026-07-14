@@ -12,6 +12,14 @@ import { buscarProductosSemantico } from "../../lib/api/ia";
 import { ApiError } from "../../lib/api/http";
 import type { ProductoResultadoBusqueda } from "../../lib/types/ia";
 
+// El endpoint `GET /api/ia/buscar` (backend-fastapi/app/api/ia.py) no
+// impone un tope de longitud a `consulta`, pero es una búsqueda en
+// lenguaje natural, no un campo de texto libre: una consulta larguísima
+// solo dispara una llamada de generación de embeddings más costosa sin
+// aportar precisión. 200 caracteres es un tope de negocio/UX razonable
+// para una frase de búsqueda.
+const CONSULTA_MAX_LENGTH = 200;
+
 interface Props {
   token: string;
   /** Reutiliza el filtro por empresa ya existente en `productos/page.tsx` para ubicar el resultado en la tabla. */
@@ -89,6 +97,7 @@ export function BusquedaSemanticaProductos({ token, onFiltrarEmpresa }: Props) {
               <Input
                 aria-label="Consulta de búsqueda semántica"
                 placeholder="Ej. teclado para oficina"
+                maxLength={CONSULTA_MAX_LENGTH}
                 value={consulta}
                 onChange={(event) => setConsulta(event.target.value)}
               />

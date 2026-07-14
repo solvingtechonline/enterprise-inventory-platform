@@ -10,6 +10,10 @@ import { Modal } from "../molecules/Modal";
 import { ApiError } from "../../lib/api/http";
 
 const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// 254 es el máximo de un correo válido según RFC 5321 (mismo criterio que
+// LoginForm; ver ReporteEnviarInput.destinatario en
+// backend-fastapi/app/schemas/inventario.py, que usa EmailStr).
+const CORREO_MAX_LENGTH = 254;
 
 interface Props {
   empresaNombre: string;
@@ -34,6 +38,10 @@ export function EnviarCorreoModal({ empresaNombre, onClose, onEnviar }: Props) {
     }
     if (!REGEX_CORREO.test(destinatario.trim())) {
       setError("Ingresa un correo válido.");
+      return;
+    }
+    if (destinatario.trim().length > CORREO_MAX_LENGTH) {
+      setError(`El correo no puede superar ${CORREO_MAX_LENGTH} caracteres.`);
       return;
     }
     setError(undefined);
@@ -80,6 +88,7 @@ export function EnviarCorreoModal({ empresaNombre, onClose, onEnviar }: Props) {
             <Input
               id="destinatario"
               type="email"
+              maxLength={CORREO_MAX_LENGTH}
               value={destinatario}
               onChange={(event) => setDestinatario(event.target.value)}
               invalid={Boolean(error)}
