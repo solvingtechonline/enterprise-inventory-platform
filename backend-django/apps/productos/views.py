@@ -1,3 +1,4 @@
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework.viewsets import ModelViewSet
 
 from apps.autenticacion.permissions import EsAdministrador
@@ -6,7 +7,83 @@ from apps.productos.serializers import ProductoSerializer
 from apps.productos.services.eliminacion_producto import preparar_eliminacion_producto
 from apps.productos.services.fastapi_ia_client import ingestar_embedding_async_seguro
 
+_EJEMPLO_PRODUCTO = OpenApiExample(
+    "Producto de ejemplo",
+    value={
+        "codigo": "L001",
+        "nombre": "Lenovo IdeaPad 3",
+        "caracteristicas": "16GB RAM, 512GB SSD, pantalla 15.6 pulgadas",
+        "empresa": "900123456-7",
+        "precios": [
+            {"moneda": "COP", "valor": "3200000.00"},
+            {"moneda": "USD", "valor": "800.00"},
+        ],
+    },
+)
 
+_PARAM_FILTRO_EMPRESA = OpenApiParameter(
+    name="empresa",
+    type=str,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description="Filtra por NIT de empresa, ej. `?empresa=900123456-7`. Si se omite, devuelve productos de todas las empresas.",
+)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Productos"],
+        summary="Listar productos",
+        description=(
+            "Requiere rol Administrador. Devuelve todos los productos, "
+            "opcionalmente filtrados por empresa."
+        ),
+        parameters=[_PARAM_FILTRO_EMPRESA],
+        examples=[_EJEMPLO_PRODUCTO],
+    ),
+    retrieve=extend_schema(
+        tags=["Productos"],
+        summary="Consultar un producto por id",
+        description="Requiere rol Administrador.",
+        examples=[_EJEMPLO_PRODUCTO],
+    ),
+    create=extend_schema(
+        tags=["Productos"],
+        summary="Registrar un producto",
+        description=(
+            "Requiere rol Administrador. `precios` acepta uno o varios "
+            "objetos `{moneda, valor}` (monedas soportadas: `COP`, `USD`, "
+            "`EUR`); no se puede repetir la misma moneda dos veces en el "
+            "mismo producto, y debe enviarse al menos un precio. "
+            "Al guardarse con éxito, se dispara automáticamente la "
+            "generación del embedding del producto en el microservicio "
+            "de IA (FastAPI); si ese paso falla, el producto igual queda "
+            "guardado."
+        ),
+        examples=[_EJEMPLO_PRODUCTO],
+    ),
+    update=extend_schema(
+        tags=["Productos"],
+        summary="Editar un producto (reemplazo completo)",
+        description="Requiere rol Administrador. Reemplaza también la lista completa de precios.",
+        examples=[_EJEMPLO_PRODUCTO],
+    ),
+    partial_update=extend_schema(
+        tags=["Productos"],
+        summary="Editar un producto (campos parciales)",
+        description="Requiere rol Administrador.",
+    ),
+    destroy=extend_schema(
+        tags=["Productos"],
+        summary="Eliminar un producto",
+        description=(
+            "Requiere rol Administrador. Se rechaza si el producto tiene "
+            "unidades registradas en Inventario (microservicio FastAPI); "
+            "si ese chequeo no se puede confirmar, también se bloquea el "
+            "borrado por seguridad."
+        ),
+    ),
+)
 class ProductoViewSet(ModelViewSet):
     """
     CRUD de Producto, asociado a Empresa.

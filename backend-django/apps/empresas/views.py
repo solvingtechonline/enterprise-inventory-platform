@@ -1,3 +1,4 @@
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework.viewsets import ModelViewSet
 
 from apps.autenticacion.permissions import LecturaLibreEscrituraAdministrador
@@ -8,7 +9,73 @@ from apps.productos.services.eliminacion_producto import (
     verificar_sin_stock,
 )
 
+_EJEMPLO_EMPRESA = OpenApiExample(
+    "Empresa de ejemplo",
+    value={
+        "nit": "900123456-7",
+        "nombre": "Los Asociados S.A.S.",
+        "direccion": "Cra 8g #90",
+        "telefono": "3004444430",
+    },
+    request_only=False,
+    response_only=False,
+)
 
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Empresas"],
+        summary="Listar empresas",
+        description=(
+            "Devuelve todas las empresas registradas. No requiere "
+            "autenticación: es el punto de acceso del rol Externo, "
+            "que solo puede consultar, nunca escribir."
+        ),
+        examples=[_EJEMPLO_EMPRESA],
+        auth=[],
+    ),
+    retrieve=extend_schema(
+        tags=["Empresas"],
+        summary="Consultar una empresa por NIT",
+        description="Devuelve una empresa puntual. Público, sin autenticación.",
+        examples=[_EJEMPLO_EMPRESA],
+        auth=[],
+    ),
+    create=extend_schema(
+        tags=["Empresas"],
+        summary="Registrar una empresa",
+        description=(
+            "Requiere rol Administrador (header "
+            "`Authorization: Bearer <access>`). El NIT es la llave "
+            "primaria: debe ser único y cumplir el formato "
+            "`dígitos[-dígito de verificación]`, por ejemplo "
+            "`900123456-7`."
+        ),
+        examples=[_EJEMPLO_EMPRESA],
+    ),
+    update=extend_schema(
+        tags=["Empresas"],
+        summary="Editar una empresa (reemplazo completo)",
+        description="Requiere rol Administrador. Reemplaza todos los campos editables.",
+        examples=[_EJEMPLO_EMPRESA],
+    ),
+    partial_update=extend_schema(
+        tags=["Empresas"],
+        summary="Editar una empresa (campos parciales)",
+        description="Requiere rol Administrador. Solo actualiza los campos enviados.",
+    ),
+    destroy=extend_schema(
+        tags=["Empresas"],
+        summary="Eliminar una empresa",
+        description=(
+            "Requiere rol Administrador. Elimina en cascada todos los "
+            "productos de la empresa **siempre que ninguno tenga stock "
+            "registrado en Inventario** (microservicio FastAPI); si "
+            "alguno tiene stock, la eliminación se rechaza por completo "
+            "y no se borra nada."
+        ),
+    ),
+)
 class EmpresaViewSet(ModelViewSet):
     """
     CRUD de Empresa.
